@@ -1,0 +1,1 @@
+Copy the Azureus2.jar & swt*.jar from your azureus dir into this dir.

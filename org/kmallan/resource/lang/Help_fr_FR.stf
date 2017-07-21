@@ -1,0 +1,210 @@
+$ 
+$    Aide De Module de balayage D'Alimentation de RSS
+$ 
+
++ 
++Au sujet du module de balayage d'alimentation de RSS
+
+!Quel est RSS?
+ Beaucoup de fournisseurs de torrent font des listes de leurs torrents plus récents disponibles aux utilisateurs dans un XML (Extensible Markup Language) composer connu comme RSS (syndication vraiment simple) de sorte que les utilisateurs puissent employer des analyseurs pour traiter automatiquement cette information pour un certain nombre de buts.
+
+ Quelques tels programmes peuvent montrer les torrents les plus récents sur votre écran, produisent des listes de torrent pour des sites Web, ou lancent automatiquement des clients de torrent pour chercher les torrents spécifiques quand ils apparaissent.
+ 
+ Ce plugin est de la dernière variété.
+ 
+!Que ce plugin fait?
+ Il vérifiera périodiquement l'alimentation URLs de RSS que vous indiquez, et cherche les torrents que vous êtes intéressé dedans, automatiquement les commençant télécharger par Azureus.
+ 
+ En raison de l'intégration d'it's dans le client d'Azureus BitTorrent, ce plugin peut être prolongé dans sa gamme de la fonctionnalité pour faire les choses que les modules de balayage actuellement disponibles d'alimentation de RSS ne peuvent pas, comme:
+ 
+!Queest-ce que peut ce plugin faire?
+*Économiser vos torrents dans un annuaire spécifique, selon le filtre assorti.
+*Courez seulement quand votre client de BitTorrent court.
+
+ En plus de ces avantages de courir dans le client d'Azureus BitTorrent, ce module de balayage a plus avancé la fonctionnalité, indisponible dans d'autres clients de RSS actuellement.
+ 
+ Ce module de balayage d'alimentation de RSS plugin vous permet d'établir des règles plus flexibles, pour viser vos besoins exacts...
+ 
+!Quels sont certains des dispositifs plus avançés ?
+
+*Votre choix des allumettes régulières d'expression ou de sous-chaîne
+   Si vous don't comprenez la syntaxe régulière d'expression, vous pouvez simplement employer le format moins puissant, mais plus facilement compris de sous-chaîne.
+   En utilisant le format de sous-chaîne, le titre et/ou le torrent est recherché l'existence du texte particulier que vous indiquez.
+   
+*"ÉCHOUER"; règles
+   Vous pouvez employer tout le même critera que vous aviez l'habitude normalement d'assortir les torrents que vous voulez télécharger pour assortir également les torrents que vous don't voulez télécharger.
+   Par exemple, vous pourriez arrêter le plugin de télécharger tous les torrents avec le "svcd" des textes;, "tvrip"; ou tout autre texte que vous concevez, simplement en créant une règle qui assortit le "(svcd|tvrip)";, la plaçant POUR ÉCHOUER et la plaçant surtout l'autre PASSAGE filtre.
+   Si l'analyseur assortit une règle d'ÉCHOUER avant qu'il obtienne à une règle assortie de PASSAGE, alors le envoy ne se produira jamais.
+   
+*Sources Multiples
+   Les lecteurs de quelques rss vous permettent seulement de surveiller une alimentation de RSS.
+   Ce plugin vous permet d'indiquer le multiple, et a des règles spécifiques d'alimentation (voir le prochain point)
+   
+*Règles génériques, ou d'alimentation de détail
+   Ceux-ci permettront à vos filtres de viser les allumettes spécifiques à une alimentation spécifique, ou à toutes les alimentations de source.
+   C'est utile si vous voulez seulement télécharger un torrent spécifique d'une source spécifique.
+   
+*Analyse de notation d'épisode
+   Avec la notation d'épisode analysant, vous pouvez indiquer que vous voulez seulement assortir une gamme particulière des épisodes dans une série de torrents.
+   Quand les torrents emploient n'importe lequel des formats marquants d'épisode commun cette volonté plugin a lu l'identification d'épisode, et décide si vous voulez au envoy basé sur vos préférences.
+   
+*Le envoy configurable retarde
+   Vous pouvez indiquer votre propre intervalle de envoy d'alimentation de RSS sur toutes les alimentations, aussi bien que globalement.
+   
+*Envoyez un referer
+   Vous pouvez l'obtenir pour envoyer le referer en recherchant le torrent.
+   Par défaut il enverra ce qui est placé dans le URL comme referer, mais vous pouvez également placer fait sur commande (en lui laissant la volonté blanche arrêtez un referer de l'envoi).
+   
+*Envoyez les biscuits
+   Si vous employez une source comme TorrentBits, qui exige des biscuits d'être placés, vous pouvez faire ceci.
+   Le format est comme suit: '<nom>=<valeur>'
+   Vous devez remplacer le '<nom>' et '<valeur>' avec le nom et la valeur du biscuit.
+   Si vous avez besoin, vous pouvez écrire le multiple, simplement en les séparant par une semi-colonne ';'.
+   Pour TorrentBits vous prendriez quelque chose qui ressemble à 'uid=123456;pass=0123456789abcdef0123456789abcdef'.
+   
+*Le Poteau Cherchent Le Traitement
+   Après avoir avec succès cherché un torrent, vous pouvez l'avoir faites le suivant automatiquement:
+     Déplacez le envoy au dessus.
+     Placez l'état du envoy (États: Ne faites Rien, Aligné, envoy Obligatoire, Arrêté).
+     Placez la vitesse de envoy dans KB/s.
+     Placez la vitesse de téléchargement dans KB/s (exige Azureus 2.2.0.0).
+     Établissez la priorité (non disponible avec Azureus 2.2.0.0).
+     Placez une catégorie pour le envoy.
+   
+*Téléchargez seulement un article une fois
+   Quand téléchargeant un TVShow, il utilisera l'histoire futée quant pas au envoy un article plus d'une fois.
+   En téléchargeant tous autres articles, vous pouvez le faire se neutraliser après la première allumette avec succès téléchargée.
+      
+*Simple et facile pour utiliser le GUI
+   L'édition de votre hase de règles non jamais été plus facile, depuis maintenant vous peut éditer votre configuration dans le GUI.
+   Theres aucun besoin de recourir pour remettre éditer des dossiers des textes; vous pouvez les faire tous de dans l'interface d'Azureus. 
+ 
+ 
++ 
++Tout au sujet des alimentations de RSS
+
+!D'où obtiens-je l'alimentation URLs de RSS?
+ Il y a une variété d'endroits pour obtenir des alimentations de.
+ 
+ La plupart du temps vous le besoin juste d'avoir un examen rapide sur les emplacements que vous visitez pour voir si vous pouvez repèrer le lien.
+ 
+ Une autre manière de trouver un bon nombre d'alimentations de torrent est aller à google.com et de rechercher le "torrent rss"
+ 
+!Ok, j'ai un URL d'alimentation de RSS, ce qui maintenant?
+ Simplement:
+*Clic sur l'étiquette d'options
+*Trouvez la table d'URLs d'alimentation de RSS
+*Clic sur le "+" près de la table
+*Type a meaningful name for this feed into the name field (Just make one up)
+*Collez le URL dans le champ de URL
+*Cliquez le "Actif" checkbox
+*Cliquez le "Acceptez" bouton
+ 
+ Vous pouvez également faire les les étapes facultatives suivantes (avant de cliquer "Acceptez" bouton):
+*Placez un annuaire de défaut pour télécharger des articles de cette alimentation à
+*Placez retarde pour l'alimentation (si le blanc laissé, il emploiera le global retarde l'ensemble dans les config d'Azureus sous la Plugins->Configuration De RSSFeed)
+*Placez un referer fait sur commande, pour faire ceci, l'uncheck 'Employez le URL comme Referer pour des torrents', et peuplez la boîte fournie (pour n'envoyer aucun referer, laissez-le blanc)
+*Placez quelques biscuits à passer
+
+ Vous pouvez suivre le même procédé pour ajouter plus d'alimentations.
+
++ 
++Tout au sujet des filtres de torrent
+
+!Comment effectuez le travail de filtres?
+ Il est tout à fait facile construire des filtres, mais il est utile de comprendre comment le processus assorti fonctionne.
+ 
+ D'abord, quand une alimentation de RSS est cherchée, les filtres sont assortis contre chaque article dans l'alimentation, démarrant au dessus de la liste de filtre jusqu'à ce qu'elle trouve un filtre qui assortit.
+
+!Ok, je veux ajouter un filtre, me guide à travers?
+ Ce processus est tout comme le processus d'ajouter un URL d'alimentation.
+ Ce qui suit est un filtre de base, et il y a davantage des manières et des options avancées d'être explorées qui seront couvertes plus tard:
+*Clic sur l'étiquette d'options
+*Trouvez la table de filtres
+*Clic sur le "+" près de la table
+*Dactylographiez un nom signicatif pour ce filtre dans la zone d'identification (composez juste un)
+*Dactylographiez le texte que vous voulez assortir dans le "Filtre" champ.
+   PAR EXEMPLE: Pour assortir le Tru Calling d'exposition de TV, vous dactylographieriez le "tru calling"
+*Cliquez le "Le filtre recherche le titre" et "Le filtre recherche le lien" boîtes.
+*Cliquez le "Actif" checkbox
+*Cliquez le "Acceptez" bouton
+
+!Que Passage/Échouer signifient-ils?
+ Si le filtre qui s'assortit est du "ÉCHOUER" dactylographiez, alors cet article particulier est jeté, et pas plus pas vérifié.
+ 
+ Si le filtre qui s'assortit est du "PASSAGE" dactylographiez, alors le torrent est ajouté à Azureus' ; téléchargez la liste, et êtes commencé.
+ 
+ Si l'article obtient complètement la liste de filtre sans assortir alors est lui a jeté.
+ 
+!Ce qui peut allumette de I dessus?
+ Les filtres peuvent assortir l'un ou l'autre le titre, le nom de fichier, ou l'un ou l'autre.
+ 
+ Les filtres peuvent également être le type régulier d'expression, ou le type de sous-chaîne.
+
+!Ce qui sont des expressions régulières?
+ Les types réguliers d'expression utilisent un code particulièrement écrit qui définit un ensemble de critères assortis qui peuvent être employés par des utilisateurs de puissance pour écrire des règles plus flexibles.
+ Ce n'est pas l'endroit pour discuter les complexités des expressions régulières, mais suffit pour dire une recherche de Google sur le "expressions régulières" ; fournit la documentation suffisante pour ceux qui souhaitent apprendre.
+ D'autres peuvent employer l'allumette moins puissante de sous-chaîne ci-dessous.
+ 
+!Cela semble trop complexe!
+ L'allumette de sous-chaîne est plus appropriée aux utilisateurs et seulement aux allumettes de débutant si le texte assuré est trouvé à l'intérieur du texte du titre ou du dossier.
+ 
+!J'ai un torrent qui est sur les alimentations multiples, mais je veux seulement le télécharger d'une. 
+ Le choix d'alimentation permet à vous d'indiquer si l'expression s'applique à toutes les alimentations, ou seulement spécifique.
+
+!Au sujet des types de filtre
+ Le type vous permet d'iPASSAGEndiquer le type du envoy qui téléchargera, et pour les types spécifiques vous fournira les diverses options qui sont disponibles pour ce type.
+ 
+@Le type de TVShow:
+ Le type de TVShow fournit les options d'analyse de notation d'épisode.
+ 
+ Et derrière des sections permettez-vous d'indiquer une gamme des épisodes dans la série que vous êtes intéressé dedans, par exemple:
+ 
+!    De: Série "2", Épisode "10"
+!    À:  Série "0", Épisode "0"
+   Dit que le nom de fichier de torrent doit avoir un certain genre de nombre d'épisode ou la gamme dans elle et l'episode(s) doit être de la série 2, l'épisode 10 en avant.
+   Ce bidon plugin identifient la plupart des formats communs comme:
+     s1e01, 1x01, s01e01-02, 01x01-02, 01x01-01x02, 01x01+02
+   
+ Si l'episode(s) qui sont dans le torrent sont dans la marge que vous êtes intéressé dedans, alors elle sera programmée pour le envoy.
+ Si ou derrière la série est 0, alors il n'y a aucun début ou derrière l'extrémité à la gamme, respectivement.
+ Si tous les deux sont 0 puis il n'y a aucune gamme, et n'importe quelle allumette aux allumettes de filtre.
+ 
+@L'autre type:
+ L'autre type est pour chaque chose autrement.
+ 
+ Il a les options folowing:
+*Neutralisez après succès
+ 
+!Comment peux je temporairement neutraliser un spécifique filtrez?
+ L'arrangement actif vous permet d'activer/ temporairement le filtre courant, sans doit delete/re-add il.
+ 
+!Pour ce qu'est le mode utilisé?
+ Le mode peut être placé au PASSAGE ou à l'ÉCHOUER.
+ 
+ Le mode de PASSAGE déclenche le envoy pour se produire si tous les critères sont rencontrés.
+ Le mode d'ÉCHOUER ne cause aucun envoy, même si les filtres suivants se seraient assortis.
+ 
+!Que les autres arrangements font-ils?
+*Déplacez-vous au dessus
+   Cet arrangement déplacera le envoy au dessus de la liste, quand on l'ajoute d'abord.
+*Placez L'État À
+@    Ne faites Rien
+     Ceci en tant que lui nommé ne suggère, fait rien.
+@    Aligné
+     Quand le envoy est ajouté, l'état d'it's sera placé à aligné.
+@    Envoy Obligatoire
+     Quand le envoy est ajouté, l'état d'it's sera placé au envoy obligatoire.
+@    Arrêté
+     Quand le envoy est ajouté, l'état d'it's sera placé à arrêté.
+*Vitesse d'Envoy (KB/s)
+   Quand le envoy est ajouté, la vitesse d'envoy d'it's sera automatiquement soit placée à ceci.
+*Vitesse de Téléchargement (KB/s)
+   Quand le envoy est ajouté, la vitesse de téléchargement d'it's sera automatiquement soit placée à ceci.
+   Cet arrangement devient disponible dans Azuerus 2.2.0.0
+*Priorité
+   Quand le envoy est ajouté, la priorité d'it's sera automatiquement soit placée à ceci.
+   Cet arrangement n'est plus disponible dans Azuerus 2.2.0.0
+*Placez La Catégorie
+   Quand le envoy est ajouté, il sera automatiquement assigné à cette catégorie.
+

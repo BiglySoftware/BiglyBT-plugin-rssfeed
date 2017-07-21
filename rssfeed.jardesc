@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="rssfeed/rssfeed.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/rssfeed/rssfeed.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=rssfeed/&lt;org.kmallan.include"/>
+        <javaElement handleIdentifier="=rssfeed/&lt;org.kmallan.azureus.rssfeed"/>
+        <javaElement handleIdentifier="=rssfeed/&lt;org.kmallan.resource.lang"/>
+        <javaElement handleIdentifier="=rssfeed/&lt;org.kmallan.resource.icons"/>
+    </selectedElements>
+    <fatjar builder="org.eclipse.jdt.ui.plain_jar_builder" launchConfig=""/>
+</jardesc>

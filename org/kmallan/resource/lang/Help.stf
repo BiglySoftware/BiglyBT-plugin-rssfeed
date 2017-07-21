@@ -1,0 +1,211 @@
+$ 
+$    RSS Feed Scanner Help
+$ 
+
++ 
++About the RSS Feed Scanner
+
+!What is RSS?
+ Many torrent providers make lists of their most recent torrents available to the users in an XML (eXtensible Markup Language) format known as RSS (Really Simple Syndication) so that the users can use parsers to automatically process this information for a number of purposes.
+
+ Some such programs can display the most recent torrents on your screen, generate torrent lists for websites, or automatically launch torrent clients to fetch specific torrents when they appear.
+ 
+ This plugin is of the latter variety.
+ 
+!What does this plugin do?
+ It will periodically check the RSS feed URLs that you specify, and fetch the torrents that you are interested in, automatically starting them downloading in Azureus.
+ 
+ Because of it's integration into the Azureus BitTorrent client, this plugin can be extended in its range of functionality to do things that the currently available RSS feed scanners cannot, such as:
+ 
+!What else can this plugin do?
+*Save your torrents in a specific directory, depending on the filter matched.
+*Only run when your BitTorrent client is running.
+
+ In addition to these benefits of running in the Azureus BitTorrent client, this scanner has more advanced functionality, unavailable in other RSS clients currently.
+ 
+ This RSS Feed Scanner plugin allows you to build more flexible rules, to target your exact needs...
+ 
+!What are some of the more advanced features?
+
+*Your choice of Regular Expression or Substring matches
+   If you don't understand regular expression syntax, you can simply use the less powerful, but more easily understood substring format.
+   Using the substring format, the title and/or torrent is searched for the existence of the particular text that you specify.
+   Both of these are case-insensitive.
+   
+*"FAIL" rules
+   You can use any the same critera that you would normally use to match torrents that you want to download to also match torrents that you don't want to download.
+   For example, you could stop the plugin from downloading any torrents with the text "svcd", "tvrip" or any other text that you design, simply by creating a rule that matches "(svcd|tvrip)", setting it to FAIL and placing it above all the other PASS filters.
+   If the parser matches a FAIL rule before it gets to a matching PASS rule, then the download will never occur.
+   
+*Multiple Sources
+   Some rss readers only allow you to monitor one RSS feed.
+   This plugin allows you to specify multiple, and have feed specific rules. (see next point)
+   
+*Generic, or feed specific rules
+   These will allow your filters to target specific matches to either one specific feed, or all of the source feeds.
+   This is helpful if you only want to download a specific torrent from a specific source.
+   
+*Episode notation parsing
+   With the episode notation parsing, you can specify that you only want to match a particular range of episodes in a series of torrents.
+   When the torrents use any of the common episode labeling formats this plugin will read the episode id, and decide whether you want to download based upon your preferences.
+   
+*Configurable download delay
+   You may specify your own RSS feed download interval on all of the feeds, as well as globally.
+   
+*Send a referer
+   You can get it to send the referer when retrieving the torrent.
+   By default it will send what is set in the URL as the referer, but you can also set a custom one (leaving it blank will stop a referer from being sent.
+   
+*Send cookies
+   If you use a source like TorrentBits, which requires cookies to be set, you can do this.
+   The format is as follows: '<name>=<value>'
+   You need to replace the '<name>' and '<value>' with the name and the value of the cookie.
+   If you need to, you can enter multiple, simply by separating them by a semi-column ';'.
+   For TorrentBits you would have something that looks like 'uid=123456;pass=0123456789abcdef0123456789abcdef'.
+   
+*Post Fetch Processing
+   After successfully fetching a torrent, you can have it do the following automatically:
+     Move the download to the top.
+     Set the state of the download (States: Do Nothing, Queued, Forced Download, Stopped).
+     Set the download speed in KB/s.
+     Set the upload speed in KB/s (requires Azureus 2.2.0.0).
+     Set the priority (not available with Azureus 2.2.0.0).
+     Set a category/tag for the download.
+   
+*Only download an item once
+   When downloading a TVShow, it will utilize smart history as to not download an item more than once.
+   When downloading all Other items, you can make it disable itself after the first successfully downloaded match.
+   
+*Simple and easy to use GUI
+   Editing your rules hase never been easier, since now you can edit your configuration within the GUI.
+   Theres no need to resort to hand editing text files; you can do it all from within the Azureus interface. 
+ 
+ 
++ 
++All about RSS Feeds
+
+!Where do I get RSS feed URLs from?
+ There are a variety of places to get feeds from.
+ 
+ Mostly you just need to have a quick look on the sites that you visit to see if you can spot the link.
+ 
+ Another way to find lots of torrent feeds is to go to google.com and search for "torrent rss"
+ 
+!Ok, I have a RSS feed URL, what now?
+ Simply:
+*Click on the options tab
+*Find the RSS Feed URLs table
+*Click on the "+" beside the table
+*Type a meaningful name for this feed into the name field (Just make one up)
+*Paste the URL into the URL field
+*Click the "Active" checkbox
+*Click the "Accept" button
+ 
+ You may also do the the following optional steps (before clicking the "Accept" button):
+*Set a default directory to download items from that feed to
+*Set a delay for the feed (if left blank, it will use the global delay set in the Azureus Config under Plugins->RSSFeed Configuration)
+*Set a custom referer, to do this, uncheck 'Use URL as Referer for Torrents', and populate the box provided (to send no referer, leave it blank)
+*Set some cookies to be passed
+ 
+ You may follow the same procedure to add more feeds.
+ 
++ 
++All about Torrent Filters
+
+!How do filters work?
+ Filters are quite easy to build, but it is helpful to understand how the matching process works.
+ 
+ First, when a RSS feed is fetched, the filters are matched against each item in the feed, starting at the top of the filter list until it finds a filter that matches.
+
+!Ok, I want to add a filter, guide me through?
+ This process is much like the process of adding a feed url.
+ What follows is a basic filter, and there are more advanced ways and options to be explored which will be covered later:
+*Click on the options tab
+*Find the Filters table
+*Click on the "+" beside the table
+*Type a meaningful name for this filter into the name field (Just make one up)
+*Type the text that you want to match into the "Filter" field.
+   EG: To match the TV Show Tru Calling, you would type "tru calling"
+*Click the "Filter searches title" and "Filter searches link" boxes.
+*Click the "Active" checkbox
+*Click the "Accept" button
+ 
+!What do Pass/Fail mean?
+ If the filter that matches is of the "FAIL" type, then that particular item is discarded, and not checked any further.
+ 
+ If the filter that matches is of the "PASS" type, then the torrent is added to Azureus' download list, and is started.
+ 
+ If the item gets all the way through the filter list without matching then is it discarded.
+ 
+!What can I match on?
+ Filters may match either the title, the filename, or either.
+ 
+ Filters may also be either the Regular Expression type, or the Substring type.
+
+!What are Regular Expressions?
+ Regular Expression types utilize a specially written code that defines a set of matching criteria that may be used by power users to write more flexible rules.
+ This is not the place to discuss the intricacies of Regular Expressions, but suffice to say a Google search on "regular expressions" provides ample documentation for those wishing to learn.
+ Others may use the less powerful substring match below.
+ 
+!That sounds too complex!
+ The Substring match is more suitable for novice users and only matches if the supplied text is found inside the text of the title or file.
+ 
+!I have a torrent that is on multiple feeds, but I only want to download it from one. 
+ The feed selection allows you to specify if the expression applies to all the feeds, or only a specific one.
+
+!About filter types
+ The type allows you to specify the type of the download that will be downloading, and for specific types will supply you with various options that are available for that type.
+ 
+@The TVShow type:
+ The TVShow type provides the episode notation parsing options.
+ 
+ The From and To sections allow you to specify a range of episodes in the series that you are interested in, eg:
+ 
+!    From: Series "2" episode "10"
+!    To:   Series "0" episode "0"
+   Says that the torrent filename must have some kind of episode number or range in it and the episode(s) must be from series 2, episode 10 onwards.
+   This plugin can recognize most of the common formats like:
+     s1e01, 1x01, s01e01-02, 01x01-02, 01x01-01x02, 01x01+02
+   
+ If the episode(s) that are in the torrent are within the range that you are interested in, then it will be scheduled for download.
+ If either the from or to series is 0, then there is no start or end to the range, respectively.
+ If both are 0 then there is no range, and any match to the filter matches.
+ 
+@The Other type:
+ The Other type is for every thing else.
+ 
+ It has the folowing options:
+*Disable after success
+ 
+!How can I temporarily disable a specific filter?
+ The Active setting allows you to temporarily enable/disable the current filter, without having to delete/re-add it.
+ 
+!What is the Mode used for?
+ The Mode can be set to either PASS or FAIL.
+ 
+ The PASS mode triggers the download to occur if all the criteria are met.
+ The FAIL mode causes no download, even if following filters would have matched.
+ 
+!What do the other settings do?
+*Move to top
+   This setting will move the download to the top of the list, when it is first added.
+*Set State To
+@    Do Nothing
+     This as it name suggests, does nothing.
+@    Queued
+     When the download is added, it's state will be set to queued.
+@    Forced Download
+     When the download is added, it's state will be set to forced download.
+@    Stopped
+     When the download is added, it's state will be set to stopped.
+*Download Speed (KB/s)
+   When the download is added, it's download speed will be automatically be set to this.
+*Upload Speed (KB/s)
+   When the download is added, it's upload speed will be automatically be set to this.
+   This setting becomes available in Azuerus 2.2.0.0
+*Priority
+   When the download is added, it's priority will be automatically be set to this.
+   This setting is no longer available in Azuerus 2.2.0.0
+*Set Category/Tag
+   When the download is added, it will automatically be assigned to this category or tag.
+

@@ -1,0 +1,228 @@
+RSSFEED CHANGELOG - Changes by parg@users.sourceforge.net
+---------------------------------------------
+1.6.4  - Fix to work with latest core changes [Parg]
+1.6.3  - Fix to work with latest core changes [Parg]
+1.6.2  - Handle version number switch [Parg]
+1.6    - Rework [Parg]
+1.5.3  - Additional episode matching [Alon Albert]
+1.5.2  - Remember tab selection and column widths of filters [Parg]
+1.5.1  - Fixed lack of config persistence when moving items down their lists [Parg]
+1.5    - added option to force networks for downloads [Parg]
+1.4.19 - added support for an exclusion list of terms to remove potential matches [Alon Albert]
+1.4.18 - remove quality params when extracting season/episodes [Alon Albert]
+1.4.17 - date-based pattern matching [Alon Albert]
+1.4.16 - added new Movie filter type; auto-http redirect support [Alon Albert]
+1.4.15 - added attempt to correct for invalid entity references in bad feeds [Parg] 
+1.4.14 - improve season/episode matching [Alon Albert]
+1.4.13 - option to load filter expressions from a file [Alon Albert]
+1.4.12 - option to try and use plugin proxy
+1.4.11 - Fixed magnet based downloading when magnet has tracker entries
+1.4.10.1 - fixed class loader issue in json-io
+1.4.10 - added JSON export and import for config to give at least some ability for bulk edits
+1.4.9.1 - updated UI to say Tag(s)
+1.4.9 - Support multiple tags, comma separated
+1.4.8 - Support tags as wll as categories. If a category with the name already exists this will be used, otherwise a tag will be created/used
+1.4.6/7 - improve behaviour when downloading magnet links - Vuze 5101_B44+ recommended...
+1.4.4/5 - added 'no proxy' option
+1.4.3 - handle gziped feeds
+1.4.2 - don't copy enabled state when duplication a filter
+1.4.1 - minor null-pointer exception fix
+1.4.0 - added file size min+max to filter criteria
+1.3.7 - added filter copy feature
+1.3.6 - magnet uri support
+
+1.3.4/5 - compatability fixes
+
+RSSFEED CHANGELOG - Changes by bowman@rtfm.se
+---------------------------------------------
+
+RSSFEED 1.3.3 - 2006-11-06
+
+reduced # thread used
+prioritized torrent file guessing (when rss feed only contains url to html page)
+
+RSSFEED 1.3.2 - 2006-10-03
+
+BUGFIX: Fixed console UI problem
+
+RSSFEED 1.3.1 - 2006-09-21
+
+BUGFIX: Fixed timer and display problem
+
+RSSFEED 1.3.0 - 2006-09-16
+
+BUGFIX: Fixed scroll problem
+
+RSSFEED 1.2.9 - 2006-09-11
+
+BUGFIX: Use proper version number
+CHANGE: Updated Plugin API
+
+RSSFEED 1.2.8 - 2005-12-19
+
+BUGFIX: Stopped invalid regular expression from breaking feed loading
+FEATURE: Support self-signed SSL certificates
+
+RSSFEED 1.2.7 - 2005-07-05
+
+BUGFIX: Old non-tvshow-filters would not make use of smart history. For old tv-show filters you still need to use the "utilize smart history" checkbox.
+BUGFIX: Build is now compatible with older java versions again (1.2.6 was accidentally built with 1.5.0_03). Solves unsupported class version.
+BUGFIX: Improved error handling in case a torrent link isn't found even using the new mechanisms introduced in 1.2.6.
+BUGFIX: Fixed "create filter" menu item failing if the title was misidentified as tv show and contained certain special characters.
+FEATURE: Open/Copy link URL now works on feed items.
+
+
+RSSFEED 1.2.6 - 2005-06-29
+
+CHANGE: Added mechanisms to handle relative URLs in link elements.
+CHANGE: Improved support for indirect links: If the plugin encounters an html page without any obvious torrent file links, it will try HEAD requests for all hrefs until it finds the right content type.
+CHANGE: Old/Removed items are now only compared using the link urls, so items with changing titles (i.e including [seeders/peers] and similar dynamic indicators) will no longer cause multiple entries.
+BUGFIX: Made importing the old rssfeed.options format more robust.
+FEATURE: Indirect links to html with Refresh directives in the HTTP reply header are now handled.
+FEATURE: Added "Maximum items to keep" settings to limit number of old/removed items kept (default 1000).
+FEATURE: If a link element isn't pointing to torrent/html, the encountered content is now simply saved directly to the output dir (i.e non-torrent downloads).
+
+- I also received some post-1.2p3-code from Martyn Allan (one of the original authors) and managed to merge the following:
+CHANGE: Priority hidden for Azureus 2.2.0.0 and above.
+CHANGE: Threaded save & save as from the status table menu.
+UPDATE: Help has had an update.
+FEATURE: Smart History now optional per TVShow Filter item.
+
+
+RSSFEED 1.2.5 - 2005-05-14
+
+BUGFIX: Old/Removed items no longer deleted on restart.
+BUGFIX: History entries were saved as tvshow filter matches if their titles/locations looked like an episode mask.
+BUGFIX: File save location in history entries was incorrect for single file torrents.
+CHANGE: If an enclosure element with type "application/x-bittorrent" exists, it will now be used instead of the link element.
+CHANGE: Disabled feeds are no longer included in a manual "Refresh all feeds".
+CHANGE: Old/Removed items list reversed (recent items first).
+CHANGE: Error messages referring to required Azureus settings changed to match their current names.
+
+
+RSSFEED 1.2.4 - 2005-03-24
+
+BUGFIX: Import of the old rssfeed.options format would fail for certain files.
+BUGFIX: Fixed a bug that would sometimes identify torrent data as html when the link url didn't end with an explicit .torrent.
+BUGFIX: Fixed a few other situations that could cause failures on startup (empty tab).
+BUGFIX: Rss xml transfers that failed in mid-download would silently lock the thread forever ("Downloader" mechanisms really need to be rewritten).
+
+
+RSSFEED 1.2.3 - 2005-03-02
+
+BUGFIX: Filter test indicator would sometimes fail (not show anything at all).
+BUGFIX: Fixed table width issues on OSX.
+BUGFIX: Default refresh interval (global setting) was not used.
+BUGFIX: Corrupt/incomplete filters/feeds avoided (no longer saved). Broken items could cause NPE on startup.
+CHANGE: Improved "create filter" feature (status item menu), it should now identify tv shows better.
+CHANGE: Inverted history table, the top item is now the last downloaded.
+FEATURE: Added download time to history table.
+
+
+
+RSSFEED 1.2.2 - 2005-02-27
+
+BUGFIX: Added "support" for file:// urls to handle locally generated rss files.
+BUGFIX: More typos fixed and a few minor gui enhancements.
+BUGFIX: The setting for number of days to keep old items didn't work (was always 1 day).
+BUGFIX: Text can now be selected and copied in info dialog.
+CHANGE: Minimum refresh changed to 5 minutes (300 secs). For local files you can now use TTL to get any refresh rate.
+FEATURE: ETag and Last-Modified HTTP headers now used to avoid unecessary xml downloads (in case of unchanged feeds).
+FEATURE: Added new global setting for the initial state of manually saved torrents.
+FEATURE: New right click menu options for status tree: expand all, collapse all, open link url.
+FEATURE: Added age column to status tree.
+
+
+
+RSSFEED 1.2.1 - 2005-02-03
+
+FEATURE: Added automatic import of the previous rssfeed.options format (1.2p3 and earlier), if encountered on startup.
+
+
+RSSFEED 1.2 - 2005-01-31
+
+BUGFIX: It was not possible to add new feeds or filters unless at least one already existed in the list.
+BUGFIX: Certain characters (e.g [ ]) in xml elements would cause exceptions during parsing (no filters would be matched and refreshing would stop).
+BUGFIX: RSS feed downloads now synchronized to avoid filters matching the same item in multiple feeds when they are refreshed simultaneously.
+BUGFIX: Show info feature now works, regardless of what actually appears in the "description" element (broken html/xml stripped).
+BUGFIX: Fixed a few typos.
+CHANGE: Cleanup and refactoring of all source to make it easier to maintain (a lot of work remaining here).
+CHANGE: Reworked persistence, any old feed/filter/history data will NOT be compatible with this build (sorry).
+FEATURE: RSS feeds with links that point to an intermediary html page instead of the actual .torrent file are now handled (providing the html contains the real .torrent link).
+FEATURE: Test field added for filters. Can be used to test regexp/substring matches on an arbitrary pasted string (keep in mind all filter properties are used though, including "active" and tv show ep range).
+FEATURE. Items that are removed from feeds are now kept for a configurable time period (old items, but also removed/renamed/moved entries).
+
+
+
+
+RSSFEED CHANGELOG - Changes by the original authors
+---------------------------------------------------
+
+RSSFEED 1.2p3
+
+FEATURE: Smarter history added.
+BUGFIX: Fixed the problem that occurs if General_sDefaultTorrent_Directory is not set.
+FEATURE: Added A Dialog to show the description from the rss xml feed (if the item has one set).
+FEATURE: Added the ability to enter cookies (to be entered in the format of name=value[;name=value]).
+FEATURE: 'Disable After Success' Option Added for 'Other' Filters.
+FEATURE: Can now set the Priority, State (Queued, Forced & Stoped), Category, Download + Upload Rates (2.1.0.5 required for the later) and move items to the top of the list, Based on the filter.
+CHANGE: You may now enter a custom referrer (this is required for suprnova feeds).
+CHANGE: Updated buttons in Options Tab.
+CHANGE: Right click refresh and refresh all will now refresh disabled feeds.
+CHANGE: No longer recreates the status table when feeds are refreshed.
+BUGFIX: Fixed the problem of still not saving the torrents as '.torrent' files.
+
+
+
+RSSFEED 1.2p2
+
+FEATURE: Added Right Mouse Button Click for history listing.
+FEATURE: Ability to copy torrent location thru the torrent listing menu.
+FEATURE: Ability to copy torrent/file location thru the history listing.
+FEATURE: Ability to delete 1 or more history items thru the history listing.
+FEATURE: Displays errors & download status in the torrent listing (Both Feeds and Torrents).
+FEATURE: AutoLoad Added. See Configuration->Plugins->RSSFeed to turn it on.
+CHANGE: New Minimum Refresh of 900 seconds (15 min).
+CHANGE: Now Passes a 'User-Agent' (something other than the default: 'Java'+version)
+CHANGE: ObeyTTL enforced on Suprnova feeds.
+CHANGE: ObeyTTL default selected for new torrents.
+CHANGE: Downloading of Feeds and Torrents now runs smother.
+CHANGE: Double Click on Feed row in Status Tab now Expands & Contracts.
+CHANGE: You can now order the feeds, and the status table uses the order (requires restart)
+BUGFIX: Suprnova problem fixed with above changes.
+BUGFIX: Fails parsing the xml from some sites has been fixed.
+
+
+
+RSSFEED 1.2p1
+
+FEATURE: Added Right Mouse Button Click for torrent listing.
+FEATURE: Ability to Refresh & RefreshAll thru the torrent listing menu.
+FEATURE: Ability to Save & SaveAs for all of the torrents thru the torrent listing menu.
+FEATURE: Ability to Create a new Filter based on the selected torrent thru the torrent listing menu.
+CHANGE: Removed deprecated 'Load...' button under the torrent listing.
+FEATURE: Feeds now have a user settable default download dir.
+FEATURE: Ability to obey the TTL from the feed it self.
+FEATURE: Each feed has it's own download delay (and the one from version 1.0 is the default delay)
+CHANGE: The torrent listing is now in tree form (torrents branch out from the feed they originated).
+CHANGE: ETA/TimeRemaining now displayed in the torrent listing table, next to the respective feed.
+
+
+
+RSSFEED 1.1
+
+CHANGE: Do not hide options on accept.
+BUGFIX: NullPointerException fixed (Click on nothing on either Table under the Options Tab.)
+
+
+
+RSSFEED 1.0
+
+FEATURE: Parse Mutiple Feeds at once.
+FEATURE: Save your torrents in a specific directory, depending on the filter matched.
+FEATURE: Your choice of Regular Expression or Substring matches.
+FEATURE: "FAIL" rules.
+FEATURE: Generic, or feed specific filter rules.
+FEATURE: Episode notation parsing.
+FEATURE: Configurable download delay.
+FEATURE: Simple and easy to use GUI.
