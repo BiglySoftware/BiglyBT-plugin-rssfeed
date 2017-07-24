@@ -1,2 +1,9 @@
 /.project
 /.classpath
+*.class
+*.DS_Store
+*.zip
+*.bak
+*.biglybt
+rssfeed.jar
+rssfeed_*.jar
