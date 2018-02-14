@@ -169,7 +169,7 @@ public class HistoryBean implements Serializable, Comparable {
     if(filter != null) {
       this.filtId = filter.getID();
       this.filtName = filter.getName();
-      this.filtType = filter.getType();
+      this.filtType = String.valueOf( filter.getTypeIndex());
     }
   }
 
@@ -177,7 +177,7 @@ public class HistoryBean implements Serializable, Comparable {
     return filtName;
   }
 
-  public String getFiltType() {
-    return filtType;
+  public int getFiltTypeIndex() {
+	  return View.convertTypeFromString( filtType );
   }
 }

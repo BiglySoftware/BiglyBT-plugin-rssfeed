@@ -19,7 +19,6 @@
 
 package org.kmallan.azureus.rssfeed;
 
-import com.biglybt.pif.download.Download;
 
 import java.io.*;
 import java.util.*;
@@ -29,6 +28,16 @@ public class FilterBean implements Serializable {
 
   static final long serialVersionUID = -979691945084080240L;
 
+  	// can't change type+mode to integer due to serialization
+  
+  public static final int MODE_PASS	= 0;
+  public static final int MODE_FAIL	= 1;
+
+  public static final int TYPE_TVSHOW	= 0;
+  public static final int TYPE_MOVIE	= 1;
+  public static final int TYPE_OTHER	= 2;
+  public static final int TYPE_NONE		= 3;
+  
   private String name, storeDir, expression, exclude, category, type, mode;
   private List<String> excludes;
   private int state, rateUpload, rateDownload, startSeason, startEpisode, endSeason, endEpisode;
@@ -246,13 +255,12 @@ public class FilterBean implements Serializable {
     this.urlId = urlId;
   }
 
-  public String getType() {
-    if(type == null) type = "";
-    return type;
+  public int getTypeIndex() {
+    return View.convertTypeFromString( type );
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public void setTypeIndex(int type) {
+    this.type = String.valueOf( type );
   }
 
   public int getStartSeason() {
@@ -319,13 +327,12 @@ public class FilterBean implements Serializable {
     this.cleanFile = cleanFile;
   }
 
-  public String getMode() {
-    if(mode == null) mode = "";
-    return mode;
+  public int getModeIndex() {
+	 return View.convertModeFromString( type );
   }
 
-  public void setMode(String mode) {
-    this.mode = mode;
+  public void setModeIndex(int mode) {
+    this.mode = String.valueOf( mode );
   }
 
   public boolean getEnabled() {
@@ -353,7 +360,7 @@ public class FilterBean implements Serializable {
       }
     }
 
-    if(getType().equalsIgnoreCase("TVShow") && getStartSeason() + getEndSeason() >= 0) {
+    if(getTypeIndex() == TYPE_TVSHOW && getStartSeason() + getEndSeason() >= 0) {
       Episode e = getSeason(title);
       if(e == null) e = getSeason(link);
       if(e == null) return false;
@@ -527,7 +534,7 @@ public class FilterBean implements Serializable {
 
 
   public boolean getUseSmartHistory() {
-    if("TVShow".equalsIgnoreCase(type)) return smartHistory;
+    if( TYPE_TVSHOW == getTypeIndex()) return smartHistory;
     else return true;
   }
 

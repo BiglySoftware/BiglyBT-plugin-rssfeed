@@ -23,6 +23,7 @@ import com.biglybt.core.category.CategoryManager;
 import com.biglybt.core.config.COConfigurationManager;
 import com.biglybt.core.util.Constants;
 import com.biglybt.core.util.Debug;
+import com.biglybt.core.util.FileUtil;
 import com.biglybt.pif.download.*;
 import com.biglybt.pif.torrent.*;
 import com.biglybt.pifimpl.local.PluginCoreUtils;
@@ -359,6 +360,8 @@ public class TorrentDownloader {
     if(!downloader.fileName.toLowerCase().endsWith(".torrent"))
       filename = "temp-" + Long.toString((new Date()).getTime()) + "-" + Long.toString((new Random()).nextLong()) + ".torrent";
 
+    filename = FileUtil.convertOSSpecificChars( filename, false );
+    
     File torrentLocation = new File(directoryName, filename);
     torrentLocation.createNewFile();
     FileOutputStream fileout = new FileOutputStream(torrentLocation, false);

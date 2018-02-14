@@ -45,18 +45,18 @@ public class FilterTableItem extends TableItem {
     return data;
   }
 
-  public void setBean(int index) {
+  public void setBean(int index, View view) {
     this.data = config.getFilter(index);
 
-    update();
+    update(view);
   }
 
-  public void setBean(FilterBean data) {
+  public void setBean(FilterBean data, View view) {
     if(this.data == null) config.setFilter(data);
     else config.setFilter(config.getFilterIndex(this.data), data);
     this.data = data;
 
-    update();
+    update( view );
   }
 
   public void setup(View view) {
@@ -86,14 +86,9 @@ public class FilterTableItem extends TableItem {
         view.filtFeed.select(i + 1);
       }
     }
-    if(data.getType().equalsIgnoreCase("")) {
-      view.filtType.select(0);
-    } else
-      for(int i = 0; i < view.filtType.getItemCount(); i++) {
-        if(data.getType().equalsIgnoreCase(view.filtType.getItem(i))) {
-          view.filtType.select(i);
-        }
-      }
+
+    view.filtType.select(data.getTypeIndex());
+  
     switch(view.filtType.getSelectionIndex()) {
       case 0:
         view.filtStartSeason.setText(Integer.toString(data.getStartSeason()));
@@ -106,14 +101,9 @@ public class FilterTableItem extends TableItem {
         break;
     }
     view.filtEnabled.setSelection(data.getEnabled());
-    if(data.getMode().equalsIgnoreCase("")) {
-      view.filtMode.select(0);
-    } else
-      for(int i = 0; i < view.filtMode.getItemCount(); i++) {
-        if(data.getMode().equalsIgnoreCase(view.filtMode.getItem(i))) {
-          view.filtMode.select(i);
-        }
-      }
+   
+    view.filtMode.select(data.getModeIndex());
+
 
     view.setMinTorrentSize( data.getMinTorrentSize());
     view.setMaxTorrentSize( data.getMaxTorrentSize());
@@ -123,7 +113,7 @@ public class FilterTableItem extends TableItem {
   public void save(View view) {
     save(this, view);
 
-    update();
+    update(view);
   }
 
   public static FilterBean save(FilterTableItem item, View view) {
@@ -150,7 +140,7 @@ public class FilterTableItem extends TableItem {
     } else {
       data.setFeed(0);
     }
-    data.setType(view.filtType.getText());
+    data.setTypeIndex(view.filtType.getSelectionIndex());
     switch(view.filtType.getSelectionIndex()) {
       case 0:
         data.setStartSeason(Integer.parseInt(view.filtStartSeason.getText()));
@@ -163,17 +153,17 @@ public class FilterTableItem extends TableItem {
         break;
     }
     data.setEnabled(view.filtEnabled.getSelection());
-    data.setMode(view.filtMode.getText());
+    data.setModeIndex(view.filtMode.getSelectionIndex());
     data.setMinTorrentSize(view.getMinTorrentSize());
     data.setMaxTorrentSize(view.getMaxTorrentSize());
     return data;
   }
 
-  public void update() {
+  public void update( View view) {
     setChecked(data.getEnabled());
     setText(0, data.getName());
-    setText(1, data.getType());
-    setText(2, data.getMode());
+    setText(1, view.filtType.getItem( data.getTypeIndex()));
+    setText(2, view.filtMode.getItem( data.getModeIndex()));
   }
 
   public void remove() {

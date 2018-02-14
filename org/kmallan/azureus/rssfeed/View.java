@@ -29,7 +29,6 @@ import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.*;
 import com.biglybt.core.config.*;
 import com.biglybt.core.internat.MessageText;
-import com.biglybt.core.util.Constants;
 import com.biglybt.core.util.Debug;
 import com.biglybt.pif.download.Download;
 import com.biglybt.pif.torrent.Torrent;
@@ -43,6 +42,83 @@ import java.util.Timer;
 public class View implements MouseListener, SelectionListener, MenuListener, ModifyListener,
     Listener, ParameterListener {
 
+	private static String[]
+	getTypeStrings()
+	{
+		return( 
+			new String[]{
+				MessageText.getString("RSSFeed.Options.Filter.filtType.TVShow"),
+				MessageText.getString("RSSFeed.Options.Filter.filtType.Movie"),
+				MessageText.getString("RSSFeed.Options.Filter.filtType.Other"),
+				MessageText.getString("RSSFeed.Options.Filter.filtType.None")
+			});
+	}
+	
+	private static String[]
+	getModeStrings()
+	{
+		return( 
+			new String[]{
+				MessageText.getString("RSSFeed.Options.Filter.filtMode.Pass"),
+				MessageText.getString("RSSFeed.Options.Filter.filtMode.Fail")
+			});
+	}
+	
+	public static String
+	convertTypeToString(
+		int	type_index )
+	{
+		String[] strings = getTypeStrings();
+		
+		if ( type_index < strings.length ){
+			return( strings[type_index] );
+		}
+		
+		return( "?" );
+	}
+	
+	public static int
+	convertTypeFromString(
+		String	type_str )
+	{
+		if ( type_str.length() == 1 && Character.isDigit( type_str.charAt(0))){
+			try{
+				return( Integer.parseInt( type_str ));
+			}catch( Throwable e ){
+			}
+		}
+		
+		String[] strings = getTypeStrings();
+		
+		for ( int i=0;i<strings.length;i++){
+			if ( strings[i].equalsIgnoreCase( type_str )){
+				return( i );
+			}
+		}
+		return( 0 );
+	}
+	
+	public static int
+	convertModeFromString(
+		String	mode_str )
+	{
+		if ( mode_str.length() == 1 && Character.isDigit( mode_str.charAt(0))){
+			try{
+				return( Integer.parseInt( mode_str ));
+			}catch( Throwable e ){
+			}
+		}
+		
+		String[] strings = getModeStrings();
+		
+		for ( int i=0;i<strings.length;i++){
+			if ( strings[i].equalsIgnoreCase( mode_str )){
+				return( i );
+			}
+		}
+		return( 0 );
+	}
+	
   private Plugin plugin;
   private PluginInterface pluginInterface;
   public Config rssfeedConfig;
@@ -910,7 +986,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
 
     for(int i = 0; i < rssfeedConfig.getFilterCount(); i++) {
       filterItem = new FilterTableItem(filtTable, rssfeedConfig);
-      filterItem.setBean(i);
+      filterItem.setBean(i, this);
     }
     Utils.alternateTableBackground(filtTable);
 
@@ -1015,12 +1091,12 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
         FilterTableItem newItem = (FilterTableItem)items[newPos];
         if ( move > 0 ){
             FilterBean tmpBean = newItem.getBean();
-            newItem.setBean(curItem.getBean());
-            curItem.setBean(tmpBean);     
+            newItem.setBean(curItem.getBean(), this);
+            curItem.setBean(tmpBean, this );     
         }else{
             FilterBean tmpBean = curItem.getBean();
-           	curItem.setBean(newItem.getBean());
-        	newItem.setBean(tmpBean);       	
+           	curItem.setBean(newItem.getBean(), this);
+        	newItem.setBean(tmpBean,this);       	
         }
         filtTable.setSelection(newPos);
         selFilterItem = newItem;
@@ -1036,11 +1112,11 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     FilterTableItem newItem = new FilterTableItem(filtTable, rssfeedConfig);
     FilterBean tmpBean = new FilterBean();
     tmpBean.setName("New Item");
-    tmpBean.setType("TVShow");
-    tmpBean.setMode("Pass");
+    tmpBean.setTypeIndex(FilterBean.TYPE_TVSHOW);
+    tmpBean.setModeIndex(FilterBean.MODE_PASS);
     tmpBean.setMatchLink(true);
     tmpBean.setMatchTitle(true);
-    newItem.setBean(tmpBean);
+    newItem.setBean(tmpBean, this);
     newItem.setup(thisView);
     int curPos = filtTable.getSelectionIndex();
     if(curPos >= 0) {
@@ -1071,8 +1147,8 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
 	  FilterTableItem newItem = new FilterTableItem(filtTable, rssfeedConfig);
 	  FilterBean tmpBean = new FilterBean();
 	  tmpBean.setName(item.getName() + " (copy)");
-	  tmpBean.setType(item.getType());
-	  tmpBean.setMode(item.getMode());
+	  tmpBean.setTypeIndex(item.getTypeIndex());
+	  tmpBean.setModeIndex(item.getModeIndex());
 	  tmpBean.setMatchLink(item.getMatchLink());
 	  tmpBean.setMatchTitle(item.getMatchTitle());
 	  tmpBean.setCategory(item.getCategory());
@@ -1083,10 +1159,10 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
 	  tmpBean.setEndSeason(item.getEndSeason());
 	  tmpBean.setExpression(item.getExpression());
 	  tmpBean.setFeed(item.getFeed());
-    tmpBean.setIsRegex(item.getIsRegex());
-    tmpBean.setIsFilename(item.getIsFilename());
-    tmpBean.setMoveTop(item.getMoveTop());
-    tmpBean.setExclude(item.getExclude());
+	  tmpBean.setIsRegex(item.getIsRegex());
+	  tmpBean.setIsFilename(item.getIsFilename());
+	  tmpBean.setMoveTop(item.getMoveTop());
+	  tmpBean.setExclude(item.getExclude());
 	  tmpBean.setRateDownload(item.getRateDownload());
 	  tmpBean.setRateUseCustom(item.getRateUseCustom());
 	  tmpBean.setRenameFile(item.getRenameFile());
@@ -1097,7 +1173,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
 	  tmpBean.setStoreDir(item.getStoreDir());
 	  tmpBean.setUseSmartHistory(item.getUseSmartHistory());
 	  
-	  newItem.setBean(tmpBean);
+	  newItem.setBean(tmpBean, this);
 	  newItem.setup(thisView);
 	  
 		  int topPos = filtTable.getTopIndex();
@@ -1169,9 +1245,10 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
 
     if(filter != null) {
       tmpBean.setFilter(filter);
-      if("TVShow".equalsIgnoreCase(filter.getType())) {
+      int type = filter.getTypeIndex();
+      if( type == FilterBean.TYPE_TVSHOW) {
         if(!tmpBean.setSeason(listBean.getName().toLowerCase())) tmpBean.setSeason(listBean.getLocation().toLowerCase());
-      } else if ("Movie".equalsIgnoreCase(filter.getType())) {
+      } else if (type == FilterBean.TYPE_MOVIE) {
         if(!tmpBean.setMovie(listBean.getName().toLowerCase())) tmpBean.setMovie(listBean.getLocation().toLowerCase());
       }
     } // else manual download
@@ -1716,8 +1793,8 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
           e = FilterBean.getSeason(listBean.getLocation());
 
         newBean.setName(listBean.getName());
-        newBean.setType("Other");
-        newBean.setMode("Pass");
+        newBean.setTypeIndex(FilterBean.TYPE_OTHER);
+        newBean.setModeIndex(FilterBean.MODE_PASS );
         newBean.setFeed(urlBean.getID());
         if(e != null) {
           newBean.setName(e.showTitle);
@@ -1725,11 +1802,11 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
           newBean.setIsRegex(true);
           newBean.setMatchTitle(true);
           newBean.setMatchLink(true);
-          newBean.setType("TVShow");
+          newBean.setTypeIndex(FilterBean.TYPE_TVSHOW);
           newBean.setStartSeason(e.seasonStart);
           newBean.setStartEpisode(e.episodeStart);
         }
-        newItem.setBean(newBean);
+        newItem.setBean(newBean, this);
         newItem.setup(thisView);
 
         int newPos = filtTable.indexOf(newItem);

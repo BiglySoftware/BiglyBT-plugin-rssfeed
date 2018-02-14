@@ -71,8 +71,8 @@ public class HistoryTableItem extends TableItem {
     if(data.getFiltID() != 0) {
       output.append("Filter Matched");
       if(data.getFiltName() != null) output.append(String.format(": '%s'", data.getFiltName()));
-      output.append(" Type: ").append(data.getFiltType());
-      if ("TVShow".equalsIgnoreCase(data.getFiltType())) {
+      output.append(" Type: ").append(View.convertTypeToString( data.getFiltTypeIndex()));
+      if (FilterBean.TYPE_TVSHOW == data.getFiltTypeIndex()) {
         if(data.getSeasonStart() >= 0) {
           output.append(String.format(" - %s Ep %dx%d", data.getTitle(), data.getSeasonStart(), data.getEpisodeStart()));
           if(data.getSeasonEnd() > data.getSeasonStart())
@@ -80,7 +80,7 @@ public class HistoryTableItem extends TableItem {
           else if(data.getEpisodeEnd() > data.getEpisodeStart())
             output.append("-").append(data.getEpisodeEnd());
         }
-      } else if ("Movie".equalsIgnoreCase(data.getFiltType())) {
+      } else if ( FilterBean.TYPE_MOVIE == data.getFiltTypeIndex()) {
         output.append(String.format(" - %s (%d)", data.getTitle(), data.getYear()));
       }
     } else {

@@ -493,7 +493,7 @@ public class Scheduler extends TimerTask {
         curFilter = view.rssfeedConfig.getFilter(i);
         if(curFilter == null) continue;
         if(curFilter.matches(urlBean.getID(), titleTest, linkTest)) {
-          if(curFilter.getMode().equalsIgnoreCase("Pass")) {
+          if(curFilter.getModeIndex() == FilterBean.MODE_PASS ) {
             state = ListBean.DOWNLOAD_INCL;
           } else {
             state = ListBean.DOWNLOAD_EXCL;
@@ -505,7 +505,8 @@ public class Scheduler extends TimerTask {
       Movie m = null;
       final FilterBean filterBean = curFilter;
       if (filterBean != null) {
-        if ("TVShow".equalsIgnoreCase(filterBean.getType())) {
+    	int type = filterBean.getTypeIndex();
+        if ( type == FilterBean.TYPE_TVSHOW ) {
           try {
             e = FilterBean.getSeason(titleTest);
           } catch (Exception ee) {
@@ -516,7 +517,7 @@ public class Scheduler extends TimerTask {
             }
           } catch (Exception ee) {
           }
-        } else if ("Movie".equalsIgnoreCase(filterBean.getType())) {
+        } else if ( type == FilterBean.TYPE_MOVIE ) {
           m = FilterBean.getMovie(titleTest);
           if (m == null) {
             m = FilterBean.getMovie(linkTest);
@@ -571,7 +572,7 @@ public class Scheduler extends TimerTask {
         // Add the feed
         final String curLink = link;
         boolean success = view.torrentDownloader.addTorrent(curLink, urlBean, filterBean, listBean);
-        if(success && filterBean.getType().equalsIgnoreCase("Other") && filterBean.getDisableAfter())
+        if(success && filterBean.getTypeIndex() == FilterBean.TYPE_OTHER && filterBean.getDisableAfter())
           filterBean.setEnabled(false);
 
         if(view.isOpen() && view.display != null && !view.display.isDisposed())
