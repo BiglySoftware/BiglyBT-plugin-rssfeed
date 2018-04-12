@@ -328,7 +328,7 @@ public class FilterBean implements Serializable {
   }
 
   public int getModeIndex() {
-	 return View.convertModeFromString( type );
+	 return View.convertModeFromString( mode );
   }
 
   public void setModeIndex(int mode) {
