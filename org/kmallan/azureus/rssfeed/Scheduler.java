@@ -82,64 +82,75 @@ public class Scheduler extends TimerTask {
 
 				t.start();
 			}
-
-			if (view.isOpen() && view.display != null && !view.display.isDisposed())
-				view.display.asyncExec(new Runnable() {
+		}
+		
+		if (view.isOpen() && view.display != null && !view.display.isDisposed())
+			
+				view.display.syncExec(new Runnable() {
 					@Override
 					public void run() {
 						if (view.listTable == null || view.listTable.isDisposed())
 							return;
-
-						ListTreeItem listGroup = view.treeViewManager.getItem(urlBean);
-						if (urlBean.isHitting()) {
-							String s = urlBean.getStatus() + " ";
-							if (urlBean.getError().length() > 0
-									&& urlBean.getStatus().equals("Error")) {
-								s += "- " + urlBean.getError();
-							} else if (urlBean.getStatus().equals("Downloading")) {
-								if (urlBean.getPercent() > 0) {
-									s += Integer.toString(urlBean.getPercent()) + "%";
-								} else if (urlBean.getAmount() > 0) {
-									s += Double.toString(Math.floor(new Integer(
-											urlBean.getAmount()).doubleValue()
-											/ (double) 1024 * (double) 100)
-											/ (double) 100)
-											+ "KB";
+						
+						for (int iLoop = 0; iLoop < view.rssfeedConfig.getUrlCount(); iLoop++) {
+							final UrlBean urlBean = view.rssfeedConfig.getUrl(iLoop);
+							ListTreeItem listGroup = view.treeViewManager.getItem(urlBean);
+							if (urlBean.isHitting()) {
+								String s = urlBean.getStatus() + " ";
+								if (urlBean.getError().length() > 0
+										&& urlBean.getStatus().equals("Error")) {
+									s += "- " + urlBean.getError();
+								} else if (urlBean.getStatus().equals("Downloading")) {
+									if (urlBean.getPercent() > 0) {
+										s += Integer.toString(urlBean.getPercent()) + "%";
+									} else if (urlBean.getAmount() > 0) {
+										s += Double.toString(Math.floor(new Integer(
+												urlBean.getAmount()).doubleValue()
+												/ (double) 1024 * (double) 100)
+												/ (double) 100)
+												+ "KB";
+									}
 								}
-							}
-							listGroup.setText(1, s);
-						} else if (urlBean.isEnabled()) {
-							if (isEnabled()) {
-								int time = delay - elapsed;
-								int minutes = new Double(
-										Math.floor(new Integer(time).doubleValue() / (double) 60)).intValue();
-								int seconds = time - (minutes * 60);
-								String newTime = Integer.toString(minutes)
-										+ ":"
-										+ (seconds < 10 ? "0" + Integer.toString(seconds)
-												: Integer.toString(seconds));
-								listGroup.setText(1, newTime
-										+ " until reload"
-										+ (!urlBean.getError().equalsIgnoreCase("") ? " - "
-												+ urlBean.getError() : ""));
+								listGroup.setText(1, s);
+							} else if (urlBean.isEnabled()) {
+								if (isEnabled()) {
+									
+									final ListGroup listGroup2 = urlBean.getGroup(view.treeViewManager,
+											getDelay());
+									
+									final int delay = listGroup2.getDelay();
+									final int elapsed = urlBean.isHitting() ? 0 : listGroup2.getElapsed();
+
+									int time = delay - elapsed;
+									int minutes = new Double(
+											Math.floor(new Integer(time).doubleValue() / (double) 60)).intValue();
+									int seconds = time - (minutes * 60);
+									String newTime = Integer.toString(minutes)
+											+ ":"
+											+ (seconds < 10 ? "0" + Integer.toString(seconds)
+													: Integer.toString(seconds));
+									listGroup.setText(1, newTime
+											+ " until reload"
+											+ (!urlBean.getError().equalsIgnoreCase("") ? " - "
+													+ urlBean.getError() : ""));
+								} else {
+									listGroup.setText(1, "Automatic reload disabled"
+											+ (!urlBean.getError().equalsIgnoreCase("") ? " - "
+													+ urlBean.getError() : ""));
+								}
 							} else {
-								listGroup.setText(1, "Automatic reload disabled"
+								listGroup.setText(1, "Feed disabled"
 										+ (!urlBean.getError().equalsIgnoreCase("") ? " - "
 												+ urlBean.getError() : ""));
 							}
-						} else {
-							listGroup.setText(1, "Feed disabled"
-									+ (!urlBean.getError().equalsIgnoreCase("") ? " - "
-											+ urlBean.getError() : ""));
+							if (!urlBean.getError().equalsIgnoreCase(""))
+								listGroup.setForeground(new Color(view.display, 255, 0, 0));
+							else
+								listGroup.resetForeground();
 						}
-						if (!urlBean.getError().equalsIgnoreCase(""))
-							listGroup.setForeground(new Color(view.display, 255, 0, 0));
-						else
-							listGroup.resetForeground();
 					}
 				});
 
-		}
 	}
 
   public synchronized void runFeed(final UrlBean urlBean) {

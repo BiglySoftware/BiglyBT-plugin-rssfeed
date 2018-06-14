@@ -133,7 +133,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
   private CTabItem tabStatus, tabOptions, tabHist, tabHelp;
   private Composite status, options, history, help;
   public Label reloadLabel;
-  public TableTree listTable;
+  public Tree listTable;
   public Table histTable;
 
   public Composite optParamComp;
@@ -805,16 +805,16 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     tabStatus.setControl(status);
 
 
-    listTable = new TableTree(status, SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER);
-    Table listTableTree = listTable.getTable();
-    listTableTree.setHeaderVisible(true);
+    listTable = new Tree(status, SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER | SWT.NO_BACKGROUND );
+    
+    listTable.setHeaderVisible(true);
     listTableMenu = listMenu(shell);
-    listTableTree.setMenu(listTableMenu);
+    listTable.setMenu(listTableMenu);
 
     String columnNames = "RSSFeed.Status.ListTable.Col";
     int[] columnWidths = {350, 450, 80, 100};
     for(int i = 0; i < columnWidths.length; i++) {
-      TableColumn column = new TableColumn(listTableTree, SWT.NULL);
+      TreeColumn column = new TreeColumn(listTable, SWT.NULL);
       Messages.setLanguageText(column, columnNames + i);
       column.setWidth(columnWidths[i]);
     }
@@ -822,9 +822,16 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     GridData gdTable = new GridData(GridData.FILL_BOTH);
     listTable.setLayoutData(gdTable);
 
-    listTableTree.addMouseListener(this);
-    listTableTree.addSelectionListener(this);
+    listTable.addMouseListener(this);
+    listTable.addSelectionListener(this);
 
+    	// dunno why but adding this paintitem listener removes flicker on Windows
+    
+    listTable.addListener(SWT.PaintItem, new Listener() {
+    	public void handleEvent(Event event) {
+    		
+    	}});
+    
     treeViewManager.display();
     tabFolder.pack();
 
@@ -1586,11 +1593,11 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     Object src = event.getSource();
     Point pMousePosition = new Point(event.x, event.y);
 
-    if(src == listTable.getTable()) {
+    if(src == listTable ) {
       Rectangle rTableArea = listTable.getClientArea();
       if(rTableArea.contains(pMousePosition)) {
         if(listTable == null || listTable.isDisposed()) return;
-        TableTreeItem[] items = listTable.getSelection();
+        TreeItem[] items = listTable.getSelection();
         if(items.length == 1) {
           final ListTreeItem listItem = (ListTreeItem)items[0];
           if(listItem.isFeed()) {
@@ -1634,13 +1641,13 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
         if(filterItem == null) filtParamHide();
       }
 
-    } else if(src == listTable.getTable()) {
+    } else if(src == listTable) {
       Rectangle rTableArea = listTable.getClientArea();
       if(rTableArea.contains(pMousePosition)) {
         // Use 2 because of inconsistent behaviour of getItem
         // when table is scrolled right.
-        pMousePosition.x = 2;
-        TableTreeItem listItem = listTable.getItem(pMousePosition);
+       // pMousePosition.x = 2;
+        TreeItem listItem = listTable.getItem(pMousePosition);
         if(listItem == null) {
           listTable.deselectAll();
           selListItem = null;
@@ -1825,9 +1832,9 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
         downloadToThreaded(); // todo
       }
 
-    } else if(src == listTable.getTable()) {
+    } else if(src == listTable ) {
       if(listTable == null || listTable.isDisposed()) return;
-      TableTreeItem[] items = listTable.getSelection();
+      TreeItem[] items = listTable.getSelection();
       if(items.length == 1) {
         ListTreeItem listItem = (ListTreeItem)items[0];
         if(selListItem == null || listItem != selListItem) selListItem = listItem;

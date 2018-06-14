@@ -21,11 +21,12 @@ package org.kmallan.azureus.rssfeed;
 
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.SWT;
 
 import java.util.Map;
 
-public class ListTreeItem extends TableTreeItem {
+public class ListTreeItem extends TreeItem {
 
   private View view = null;
 
@@ -107,7 +108,7 @@ public class ListTreeItem extends TableTreeItem {
   }
 
   public void removeAll(Map allItems) {
-    TableTreeItem[] items = this.getItems();
+    TreeItem[] items = this.getItems();
     for(int i = 0; i < items.length; i++) {
       allItems.remove(items[i]);
       items[i].dispose();

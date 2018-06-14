@@ -21,6 +21,7 @@ package org.kmallan.azureus.rssfeed;
 
 import org.eclipse.swt.custom.*;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 
@@ -162,7 +163,7 @@ public class TreeViewManager {
     view.listTable.setRedraw(true);
   }
 
-  private void setExpandAll(TableTreeItem[] items, boolean expanded) {
+  private void setExpandAll(TreeItem[] items, boolean expanded) {
     for(int i = 0; i < items.length; i++) {
       items[i].setExpanded(expanded);
       if(items[i].getItemCount() > 0) setExpandAll(items[i].getItems(), expanded);
