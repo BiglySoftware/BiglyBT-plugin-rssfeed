@@ -24,7 +24,7 @@ import com.biglybt.core.security.SESecurityManager;
 import com.biglybt.core.util.Constants;
 import com.biglybt.core.util.Debug;
 import com.biglybt.core.util.RandomUtils;
-
+import com.biglybt.core.networkmanager.admin.NetworkAdmin;
 import com.biglybt.core.proxy.AEProxyFactory;
 import com.biglybt.core.proxy.AEProxyFactory.PluginProxy;
 import com.biglybt.core.proxy.AEProxySelectorFactory;
@@ -151,246 +151,252 @@ public class Downloader extends InputStream {
 
 	  target_url_str = _urlStr.replaceAll(" ", "%20");
 
-	  try {
-		  URL target_url = new URL(target_url_str);
+	  if ( NetworkAdmin.getSingleton().hasMissingForcedBind()){
 
-		  if ( proxy_opt == Plugin.PROXY_FORCE_NONE ){
-
-			  AEProxySelectorFactory.getSelector().startNoProxy();
-		  }
-		  
-		  synchronized( listeners ){
-
-			  boolean	first_effort		= true;
-			  
-			  boolean	cert_hack 			= false;
-			  boolean	internal_error_hack	= false;
-			  
-			  while( true ){
-				  
-				  PluginProxy plugin_proxy = null;
-				  
-				  URL	url			= target_url;
-				  URL	initial_url	= url;
-				  
-				  try{
-				      Proxy	proxy		= null;
-
-					  if ( proxy_opt == Plugin.PROXY_TRY_PLUGIN ){
-
-						  plugin_proxy = AEProxyFactory.getPluginProxy( "RSSFeed plugin", url );
+		error( "Forced bind address is missing" );
+		
+	  }else{
+		  try {
+			  URL target_url = new URL(target_url_str);
 	
-						  if ( plugin_proxy != null ){
+			  if ( proxy_opt == Plugin.PROXY_FORCE_NONE ){
 	
-							  url 	= plugin_proxy.getURL();
-							  proxy	= plugin_proxy.getProxy();
-						  }
-					  }
+				  AEProxySelectorFactory.getSelector().startNoProxy();
+			  }
+			  
+			  synchronized( listeners ){
+	
+				  boolean	first_effort		= true;
+				  
+				  boolean	cert_hack 			= false;
+				  boolean	internal_error_hack	= false;
+				  
+				  while( true ){
 					  
-					  if (url.getProtocol().equalsIgnoreCase("https")) {
-						  
-						  HttpsURLConnection sslCon;
-						  
-						  if ( proxy == null ){
-							  
-							  sslCon = (HttpsURLConnection)url.openConnection();
-							  
-						  }else{
-							  
-							  sslCon = (HttpsURLConnection)url.openConnection( proxy );
-						  }
-
-						  if ( !first_effort ){
-							  
-							  TrustManager[] trustAllCerts = SESecurityManager.getAllTrustingTrustManager();
-
-							  try{
-								  SSLContext sc = SSLContext.getInstance("SSL");
-
-								  sc.init(null, trustAllCerts, RandomUtils.SECURE_RANDOM);
-
-								  SSLSocketFactory factory = sc.getSocketFactory();
-
-								  sslCon.setSSLSocketFactory( factory );
-
-							  }catch( Throwable e ){
-							  }
-						  }else{
-							  	// allow for certs that contain IP addresses rather than dns names
-							  sslCon.setHostnameVerifier(new HostnameVerifier() {
-								  @Override
-								  public boolean verify(String host, SSLSession session) {return true;}
-							  });
-						  }
-						  con = sslCon;
-						  
-					  } else {
-						  if ( proxy == null ){
-						  
-							  con = url.openConnection();
-							  
-						  }else{
-							  
-							  con = url.openConnection( proxy );
-						  }
-					  }
-
-					  con.setDoInput(true);
-					  con.setUseCaches(false);
-
-					  if(con instanceof HttpURLConnection) {
-						  if ( !is_magnet ){
-							  Pattern exprHost = Pattern.compile("https?://([^/]+@)?([^/@:]+)(:[0-9]+)?/.*");
-							  Matcher m = exprHost.matcher(target_url_str.toLowerCase());
-							  if(m.matches()) con.setRequestProperty("Host", m.group(2)); // isn't this handled automatically? /bow
-						  }
-						  con.setRequestProperty("User-Agent", Plugin.PLUGIN_VERSION);
-						  if(referer != null && referer.length() > 0) con.setRequestProperty("Referer", referer);
-						  if(accept != null && accept.length() > 0) con.setRequestProperty("Accept", accept);
-						  if(cookie != null && cookie.length() > 0) con.setRequestProperty("Cookie", cookie);
-						  if(lastModSince > 0) con.setIfModifiedSince(lastModSince);
-						  if(oldEtag != null) con.setRequestProperty("If-None-Match", oldEtag);
-						  
-						  if ( plugin_proxy != null ){
-								
-							con.setRequestProperty( "HOST", plugin_proxy.getURLHostRewrite() + (initial_url.getPort()==-1?"":(":" + initial_url.getPort())));
-						  }
-					  }
-
-					  state = DOWNLOADER_INIT;
-					  fireDownloaderUpdate(state, 0, 0, "");
-
-					  con.connect();        
-
-					  if(con instanceof HttpURLConnection) {
-						  int response = ((HttpURLConnection)con).getResponseCode();
-						  Plugin.debugOut("response code: " + response);
-
-						  if(response == -1) { // HttpURLConnection in undefined state? weird stuff... occurs sporadically
-							  Thread.sleep(10000); // waiting and trying again seems to do the trick
-							  if(refCount++ < 5) {
-								  init(_urlStr, accept, referer, cookie, lastModSince, oldEtag);
-								  return;
+					  PluginProxy plugin_proxy = null;
+					  
+					  URL	url			= target_url;
+					  URL	initial_url	= url;
+					  
+					  try{
+					      Proxy	proxy		= null;
+	
+						  if ( proxy_opt == Plugin.PROXY_TRY_PLUGIN ){
+	
+							  plugin_proxy = AEProxyFactory.getPluginProxy( "RSSFeed plugin", url );
+		
+							  if ( plugin_proxy != null ){
+		
+								  url 	= plugin_proxy.getURL();
+								  proxy	= plugin_proxy.getProxy();
 							  }
 						  }
-
-						  String refresh = con.getHeaderField("Refresh");
-						  if(refresh != null) {
-							  Plugin.debugOut("refresh: " + refresh);
-							  int idx = refresh.indexOf("url=");
-							  if(idx > -1) {
-								  refresh = refresh.substring(idx + 4);
-								  if(refresh.indexOf(' ') > -1) refresh = refresh.substring(0, refresh.lastIndexOf(' '));
-								  ((HttpURLConnection)con).disconnect();
-								  if(refresh.indexOf("://") == -1) refresh = HtmlAnalyzer.resolveRelativeURL(target_url_str, refresh);
-								  Plugin.debugOut("new url: " + refresh);
-								  if(refCount++ < 3) init(refresh, accept, referer, cookie, lastModSince, oldEtag);
-							  }
-						  }
-
-						  if(response == HttpURLConnection.HTTP_NOT_MODIFIED) {
-							  state = DOWNLOADER_NOTMODIFIED;
-							  return;
-						  } else if((response != HttpURLConnection.HTTP_ACCEPTED) && (response != HttpURLConnection.HTTP_OK)) {
-                              if (response == HttpURLConnection.HTTP_MOVED_PERM || response == HttpURLConnection.HTTP_MOVED_TEMP) {
-                                final String location = con.getHeaderField("Location");
-                                Plugin.debugOut("Redirected: " + _urlStr + " -> " + location);
-                                if (location != null && !location.equals(_urlStr)) {
-                                  init(location, accept, referer, cookie, lastModSince, oldEtag);
-                                } else {
-                                  error("Suspicious redirect: " + location);
-                                }
-                                return;
-                              } else {
-                                error("Bad response for '" + url.toString() + "': " + Integer.toString(
-                                    response) + " " + ((HttpURLConnection) con).getResponseMessage());
-                                return;
-                              }
-						  }
-						  contentType = con.getContentType();
-						  lastModified = con.getLastModified();
-						  etag = con.getHeaderField("ETag");
 						  
-						  url = con.getURL();
-
-						  // some code to handle b0rked servers.
-						  fileName = con.getHeaderField("Content-Disposition");
-						  if((fileName != null) && fileName.toLowerCase().matches(".*attachment.*"))
-							  while(fileName.toLowerCase().charAt(0) != 'a') fileName = fileName.substring(1);
-						  if((fileName == null) || !fileName.toLowerCase().startsWith("attachment") || (fileName.indexOf('=') == -1)) {
-							  String tmp = url.getFile();
-							  if(tmp.lastIndexOf('/') != -1) tmp = tmp.substring(tmp.lastIndexOf('/') + 1);
-							  // remove any params in the url
-							  int paramPos = tmp.indexOf('?');
-							  if(paramPos != -1) tmp = tmp.substring(0, paramPos);
-
-							  fileName = URLDecoder.decode(tmp, Constants.DEFAULT_ENCODING);
+						  if (url.getProtocol().equalsIgnoreCase("https")) {
+							  
+							  HttpsURLConnection sslCon;
+							  
+							  if ( proxy == null ){
+								  
+								  sslCon = (HttpsURLConnection)url.openConnection();
+								  
+							  }else{
+								  
+								  sslCon = (HttpsURLConnection)url.openConnection( proxy );
+							  }
+	
+							  if ( !first_effort ){
+								  
+								  TrustManager[] trustAllCerts = SESecurityManager.getAllTrustingTrustManager();
+	
+								  try{
+									  SSLContext sc = SSLContext.getInstance("SSL");
+	
+									  sc.init(null, trustAllCerts, RandomUtils.SECURE_RANDOM);
+	
+									  SSLSocketFactory factory = sc.getSocketFactory();
+	
+									  sslCon.setSSLSocketFactory( factory );
+	
+								  }catch( Throwable e ){
+								  }
+							  }else{
+								  	// allow for certs that contain IP addresses rather than dns names
+								  sslCon.setHostnameVerifier(new HostnameVerifier() {
+									  @Override
+									  public boolean verify(String host, SSLSession session) {return true;}
+								  });
+							  }
+							  con = sslCon;
+							  
 						  } else {
-							  fileName = fileName.substring(fileName.indexOf('=') + 1);
-							  if(fileName.startsWith("\"") && fileName.endsWith("\"")) fileName = fileName.substring(1, fileName.lastIndexOf('\"'));
-							  File temp = new File(fileName);
-							  fileName = temp.getName();
-						  }
-					  }
-
-					  break;
-				  }catch( SSLException e ){
-
-					  first_effort = false;
-					  
-					  String msg = Debug.getNestedExceptionMessage( e );
-
-					  if ( !cert_hack ){
-
-						  cert_hack = true;
-						  
-						  Plugin.getPluginInterface().getUtilities().getSecurityManager().installServerCertificate( url );
-
-						  continue;
-					  }
-					  
-					  if ( !internal_error_hack ){
-						  
-						  if ( msg.contains( "internal_error" ) || msg.contains( "handshake_failure" )){
+							  if ( proxy == null ){
 							  
-							  internal_error_hack = true;
+								  con = url.openConnection();
+								  
+							  }else{
+								  
+								  con = url.openConnection( proxy );
+							  }
+						  }
+	
+						  con.setDoInput(true);
+						  con.setUseCaches(false);
+	
+						  if(con instanceof HttpURLConnection) {
+							  if ( !is_magnet ){
+								  Pattern exprHost = Pattern.compile("https?://([^/]+@)?([^/@:]+)(:[0-9]+)?/.*");
+								  Matcher m = exprHost.matcher(target_url_str.toLowerCase());
+								  if(m.matches()) con.setRequestProperty("Host", m.group(2)); // isn't this handled automatically? /bow
+							  }
+							  con.setRequestProperty("User-Agent", Plugin.PLUGIN_VERSION);
+							  if(referer != null && referer.length() > 0) con.setRequestProperty("Referer", referer);
+							  if(accept != null && accept.length() > 0) con.setRequestProperty("Accept", accept);
+							  if(cookie != null && cookie.length() > 0) con.setRequestProperty("Cookie", cookie);
+							  if(lastModSince > 0) con.setIfModifiedSince(lastModSince);
+							  if(oldEtag != null) con.setRequestProperty("If-None-Match", oldEtag);
+							  
+							  if ( plugin_proxy != null ){
+									
+								con.setRequestProperty( "HOST", plugin_proxy.getURLHostRewrite() + (initial_url.getPort()==-1?"":(":" + initial_url.getPort())));
+							  }
+						  }
+	
+						  state = DOWNLOADER_INIT;
+						  fireDownloaderUpdate(state, 0, 0, "");
+	
+						  con.connect();        
+	
+						  if(con instanceof HttpURLConnection) {
+							  int response = ((HttpURLConnection)con).getResponseCode();
+							  Plugin.debugOut("response code: " + response);
+	
+							  if(response == -1) { // HttpURLConnection in undefined state? weird stuff... occurs sporadically
+								  Thread.sleep(10000); // waiting and trying again seems to do the trick
+								  if(refCount++ < 5) {
+									  init(_urlStr, accept, referer, cookie, lastModSince, oldEtag);
+									  return;
+								  }
+							  }
+	
+							  String refresh = con.getHeaderField("Refresh");
+							  if(refresh != null) {
+								  Plugin.debugOut("refresh: " + refresh);
+								  int idx = refresh.indexOf("url=");
+								  if(idx > -1) {
+									  refresh = refresh.substring(idx + 4);
+									  if(refresh.indexOf(' ') > -1) refresh = refresh.substring(0, refresh.lastIndexOf(' '));
+									  ((HttpURLConnection)con).disconnect();
+									  if(refresh.indexOf("://") == -1) refresh = HtmlAnalyzer.resolveRelativeURL(target_url_str, refresh);
+									  Plugin.debugOut("new url: " + refresh);
+									  if(refCount++ < 3) init(refresh, accept, referer, cookie, lastModSince, oldEtag);
+								  }
+							  }
+	
+							  if(response == HttpURLConnection.HTTP_NOT_MODIFIED) {
+								  state = DOWNLOADER_NOTMODIFIED;
+								  return;
+							  } else if((response != HttpURLConnection.HTTP_ACCEPTED) && (response != HttpURLConnection.HTTP_OK)) {
+	                              if (response == HttpURLConnection.HTTP_MOVED_PERM || response == HttpURLConnection.HTTP_MOVED_TEMP) {
+	                                final String location = con.getHeaderField("Location");
+	                                Plugin.debugOut("Redirected: " + _urlStr + " -> " + location);
+	                                if (location != null && !location.equals(_urlStr)) {
+	                                  init(location, accept, referer, cookie, lastModSince, oldEtag);
+	                                } else {
+	                                  error("Suspicious redirect: " + location);
+	                                }
+	                                return;
+	                              } else {
+	                                error("Bad response for '" + url.toString() + "': " + Integer.toString(
+	                                    response) + " " + ((HttpURLConnection) con).getResponseMessage());
+	                                return;
+	                              }
+							  }
+							  contentType = con.getContentType();
+							  lastModified = con.getLastModified();
+							  etag = con.getHeaderField("ETag");
+							  
+							  url = con.getURL();
+	
+							  // some code to handle b0rked servers.
+							  fileName = con.getHeaderField("Content-Disposition");
+							  if((fileName != null) && fileName.toLowerCase().matches(".*attachment.*"))
+								  while(fileName.toLowerCase().charAt(0) != 'a') fileName = fileName.substring(1);
+							  if((fileName == null) || !fileName.toLowerCase().startsWith("attachment") || (fileName.indexOf('=') == -1)) {
+								  String tmp = url.getFile();
+								  if(tmp.lastIndexOf('/') != -1) tmp = tmp.substring(tmp.lastIndexOf('/') + 1);
+								  // remove any params in the url
+								  int paramPos = tmp.indexOf('?');
+								  if(paramPos != -1) tmp = tmp.substring(0, paramPos);
+	
+								  fileName = URLDecoder.decode(tmp, Constants.DEFAULT_ENCODING);
+							  } else {
+								  fileName = fileName.substring(fileName.indexOf('=') + 1);
+								  if(fileName.startsWith("\"") && fileName.endsWith("\"")) fileName = fileName.substring(1, fileName.lastIndexOf('\"'));
+								  File temp = new File(fileName);
+								  fileName = temp.getName();
+							  }
+						  }
+	
+						  break;
+					  }catch( SSLException e ){
+	
+						  first_effort = false;
 						  
+						  String msg = Debug.getNestedExceptionMessage( e );
+	
+						  if ( !cert_hack ){
+	
+							  cert_hack = true;
+							  
+							  Plugin.getPluginInterface().getUtilities().getSecurityManager().installServerCertificate( url );
+	
 							  continue;
 						  }
-					  }
-
-					  throw( e );
+						  
+						  if ( !internal_error_hack ){
+							  
+							  if ( msg.contains( "internal_error" ) || msg.contains( "handshake_failure" )){
+								  
+								  internal_error_hack = true;
+							  
+								  continue;
+							  }
+						  }
+	
+						  throw( e );
+						 
+					  }finally{
 					 
-				  }finally{
-				 
-					  if ( plugin_proxy != null ){
-
-						  plugin_proxy.setOK( true );
+						  if ( plugin_proxy != null ){
+	
+							  plugin_proxy.setOK( true );
+						  }
 					  }
 				  }
+	
 			  }
-
-		  }
-	  } catch(java.net.MalformedURLException e) {
-		  e.printStackTrace();
-		  error("Bad URL '" + target_url_str + "':" + e.getMessage());
-	  } catch(java.net.UnknownHostException e) {
-		  e.printStackTrace();
-		  error("Unknown Host '" + e.getMessage() + "'");
-	  } catch(IOException ioe) {
-		  ioe.printStackTrace();
-		  error("Failed: " + ioe.getMessage());
-	  } catch(Throwable e) {
-		  e.printStackTrace();
-		  error("Failed: " + e.toString());
-	  }finally{
-
-		  if ( proxy_opt == Plugin.PROXY_FORCE_NONE ){
-
-			  AEProxySelectorFactory.getSelector().endNoProxy();
+		  } catch(java.net.MalformedURLException e) {
+			  e.printStackTrace();
+			  error("Bad URL '" + target_url_str + "':" + e.getMessage());
+		  } catch(java.net.UnknownHostException e) {
+			  e.printStackTrace();
+			  error("Unknown Host '" + e.getMessage() + "'");
+		  } catch(IOException ioe) {
+			  ioe.printStackTrace();
+			  error("Failed: " + ioe.getMessage());
+		  } catch(Throwable e) {
+			  e.printStackTrace();
+			  error("Failed: " + e.toString());
+		  }finally{
+	
+			  if ( proxy_opt == Plugin.PROXY_FORCE_NONE ){
+	
+				  AEProxySelectorFactory.getSelector().endNoProxy();
+			  }
 		  }
 	  }
-
+	  
 	  if(state != DOWNLOADER_ERROR) {
 		  synchronized(listeners) {
 			  state = DOWNLOADER_START;

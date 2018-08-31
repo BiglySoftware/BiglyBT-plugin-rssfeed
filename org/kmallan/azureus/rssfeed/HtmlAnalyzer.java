@@ -22,9 +22,11 @@ package org.kmallan.azureus.rssfeed;
 import javax.swing.text.html.*;
 import javax.swing.text.MutableAttributeSet;
 
+import com.biglybt.core.networkmanager.admin.NetworkAdmin;
 import com.biglybt.core.proxy.AEProxyFactory;
 import com.biglybt.core.proxy.AEProxySelectorFactory;
 import com.biglybt.core.proxy.AEProxyFactory.PluginProxy;
+import com.biglybt.plugin.extseed.ExternalSeedException;
 
 import java.util.*;
 import java.net.*;
@@ -186,6 +188,14 @@ public class HtmlAnalyzer extends HTMLEditorKit.ParserCallback implements Runnab
    * @return
    */
   private boolean isHrefTorrent(String _href) {
+	  
+	if ( NetworkAdmin.getSingleton().hasMissingForcedBind()){
+
+		System.err.println( "Forced bind address is missing" );
+		
+		return( false );
+	}
+		
     int proxy_opt = Plugin.getProxyOption();
 
     PluginProxy	plugin_proxy = null;

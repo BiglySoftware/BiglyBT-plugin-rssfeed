@@ -1,5 +1,6 @@
 RSSFEED CHANGELOG - Changes by parg@users.sourceforge.net
 ---------------------------------------------
+1.6.9  - Fail feed updates if forced-bind address is missing [Parg]
 1.6.8  - Change to using Tree instead of TableTree as deprecated and not working on Linux [Parg] 
 1.6.7  - Fix internationalisation issue with config save [Parg]
 1.6.4  - Fix to work with latest core changes [Parg]
