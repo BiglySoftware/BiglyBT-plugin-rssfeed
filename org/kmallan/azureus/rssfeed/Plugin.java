@@ -195,27 +195,7 @@ public class Plugin implements com.biglybt.pif.Plugin {
 		
 		config.createGroup( "RSSFeed.Config.netgroup", net_params.toArray( new Parameter[net_params.size()]));
 				 
-		
-		/*
-		pluginInterface.addConfigUIParameters(getParameters(), );
-		
-		  private Parameter[] getParameters() {
-			    PluginConfigUIFactory configUIFactory = pluginInterface.getPluginConfigUIFactory();
-			    Parameter[] para = new Parameter[7];
-			    para[0] = configUIFactory.createBooleanParameter("Enabled", "RSSFeed.Config.Enable", true);
-			    para[1] = configUIFactory.createIntParameter("Delay", "RSSFeed.Config.Delay", 900);
-			    para[2] = configUIFactory.createBooleanParameter("AutoLoad", "RSSFeed.Config.AutoLoad", false);
-			    para[3] = configUIFactory.createBooleanParameter("AutoStartManual", "RSSFeed.Config.AutoStartManual", true);
-			    para[4] = configUIFactory.createIntParameter("KeepOld", "RSSFeed.Config.KeepOld", 2);
-			    para[5] = configUIFactory.createIntParameter("KeepMax", "RSSFeed.Config.KeepMax", 1000);
-			    para[6] = configUIFactory.createBooleanParameter("ForceNoProxy", "RSSFeed.Config.ForceNoProxy", false);
-			    
-			    ((EnablerParameter) para[0]).addEnabledOnSelection(para[1]);
 
-			    return para;
-			  }
-		*/
-		
 		PLUGIN_VERSION = pluginInterface.getPluginVersion();
 
 		pluginInterface.getUIManager().addUIListener(
