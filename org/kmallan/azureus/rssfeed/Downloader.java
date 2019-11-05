@@ -381,7 +381,7 @@ public class Downloader extends InputStream {
 			  error("Bad URL '" + target_url_str + "':" + e.getMessage());
 		  } catch(java.net.UnknownHostException e) {
 			  e.printStackTrace();
-			  error("Unknown Host '" + e.getMessage() + "'");
+			  error("Unknown host "+ e.getMessage());
 		  } catch(IOException ioe) {
 			  ioe.printStackTrace();
 			  error("Failed: " + ioe.getMessage());
