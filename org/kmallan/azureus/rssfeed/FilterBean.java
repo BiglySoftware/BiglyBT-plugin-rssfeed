@@ -343,9 +343,12 @@ public class FilterBean implements Serializable {
     this.enabled = enabled;
   }
 
-  public boolean matches(long urlId, String title, String link) {
-    if(!getEnabled()) return false;
-    if(getFeed() != 0 && urlId != getFeed()) return false;
+  public boolean matches(long urlId, String title, String link, boolean testOnly) {
+    if ( !testOnly){
+	  if(!getEnabled()) return false;
+	
+	  if(getFeed() != 0 && urlId != getFeed()) return false;
+    }
 
     boolean matched = false;
     if((getMatchTitle()) && (match(title))) matched = true;

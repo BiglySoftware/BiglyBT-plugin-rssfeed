@@ -1228,7 +1228,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     String testStr = filtTestMatch.getText();
     if(testStr != null) {
       testStr = testStr.toLowerCase();
-      boolean match = FilterTableItem.save(null, thisView).matches(0, testStr, testStr);
+      boolean match = FilterTableItem.save(null, thisView).matches(0, testStr, testStr,true);
       Color green = display.getSystemColor(SWT.COLOR_GREEN);
       Color red = display.getSystemColor(SWT.COLOR_RED);
       filtTestMatch.setBackground(match?green:red);

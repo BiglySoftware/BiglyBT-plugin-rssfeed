@@ -503,7 +503,7 @@ public class Scheduler extends TimerTask {
       for(int i = 0; i < view.rssfeedConfig.getFilterCount(); i++) {
         curFilter = view.rssfeedConfig.getFilter(i);
         if(curFilter == null) continue;
-        if(curFilter.matches(urlBean.getID(), titleTest, linkTest)) {
+        if(curFilter.matches(urlBean.getID(), titleTest, linkTest, false)) {
           if(curFilter.getModeIndex() == FilterBean.MODE_PASS ) {
             state = ListBean.DOWNLOAD_INCL;
           } else {
