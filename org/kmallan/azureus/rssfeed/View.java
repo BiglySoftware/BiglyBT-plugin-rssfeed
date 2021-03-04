@@ -350,9 +350,9 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     tabOptions.setControl(options);
 
     // Options Folder - Tables
-    ScrolledComposite optValTblScrollComp = new ScrolledComposite(options, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
+    ScrolledComposite optValTblScrollComp = new ScrolledComposite(options, SWT.V_SCROLL | SWT.BORDER);
     layout = new GridLayout();
-    layoutData = new GridData(GridData.FILL_VERTICAL);
+    layoutData = new GridData(GridData.FILL_VERTICAL | GridData.FILL_HORIZONTAL);
     layoutData.widthHint = 380;
     optValTblScrollComp.setLayout(layout);
     optValTblScrollComp.setLayoutData(layoutData);
@@ -426,8 +426,6 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     btnFiltCopy = setupToolItem(filtCompBar, "Copy.gif");
     btnFiltRemove = setupToolItem(filtCompBar, "ItemRemove.gif");
     btnFiltDown = setupToolItem(filtCompBar, "ItemMoveDown.gif");
-
-    optValTblScrollComp.setMinSize(optValTblComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
     // Options Folder - Params
     optParamScrollComp = new ScrolledComposite(options, SWT.V_SCROLL | SWT.BORDER);
