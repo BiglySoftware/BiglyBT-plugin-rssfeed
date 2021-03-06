@@ -5,5 +5,5 @@
 *.zip
 *.bak
 *.biglybt
-rssfeed.jar
-rssfeed_*.jar
+/build
+/dist
