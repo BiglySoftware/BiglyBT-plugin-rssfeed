@@ -146,7 +146,8 @@ public class TorrentDownloader {
 								
 								String[] tags = category_or_tag_name.split( "," );
 								
-								TagType tt = TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_MANUAL );
+								TagType tt_cat	= TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_CATEGORY );
+								TagType tt_dm	= TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_MANUAL );
 
 								for ( String tag_name: tags ){
 									
@@ -156,23 +157,36 @@ public class TorrentDownloader {
 										
 										continue;
 									}
-																	
-									Tag tag = tt.getTag( tag_name, true );
-									
-									if ( tag == null ){
 										
-										try{
-											tag = tt.createTag( tag_name, true );
-											
-										}catch( Throwable e ){
-											
-											Debug.out( e );
-										}
-									}
-	
+									Tag tag = tt_cat.getTag( tag_name, true );
+									
 									if ( tag != null ){
 										
+											// if a category exists with this name then use that
+										
 										tag.addTaggable( PluginCoreUtils.unwrap( download ));
+										
+									}else{
+										
+											// otherwise use existing/create manual tag
+										
+										tag = tt_dm.getTag( tag_name, true );
+										
+										if ( tag == null ){
+											
+											try{
+												tag = tt_dm.createTag( tag_name, true );
+												
+											}catch( Throwable e ){
+												
+												Debug.out( e );
+											}
+										}
+		
+										if ( tag != null ){
+											
+											tag.addTaggable( PluginCoreUtils.unwrap( download ));
+										}
 									}
 								}
 							}
