@@ -24,6 +24,7 @@ import org.eclipse.swt.custom.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
 import com.biglybt.core.internat.MessageText;
+import com.biglybt.ui.swt.Utils;
 
 import java.io.*;
 
@@ -68,24 +69,61 @@ public class Help extends StyledText {
       this.setRedraw(false);
       this.setWordWrap(true);
 
-      Color black = new Color((Device) display, 0, 0, 0);
-      Color white = new Color((Device) display, 255, 255, 255);
-      Color light = new Color((Device) display, 200, 200, 200);
-      Color grey = new Color((Device) display, 50, 50, 50);
-      Color green = new Color((Device) display, 30, 80, 30);
-      Color blue = new Color((Device) display, 20, 20, 80);
+      Color fg_black;
+      Color fg_white;
+      Color bg_white;
+      Color bg_light;
+      Color fg_grey;
+      Color fg_green;
+      Color fg_blue;
+      Color bg_blue;
+      
+      if ( Utils.isDarkAppearanceNative()){
+    	  	// white on black, better than nothing...
+	      fg_black = new Color((Device) display, 255, 255, 255);
+	      fg_white = new Color((Device) display, 255, 255, 255);
+	      bg_white = new Color((Device) display, 0, 0, 0);
+	      bg_light = new Color((Device) display, 0, 0, 0);
+	      fg_grey = new Color((Device) display, 255, 255, 255);
+	      fg_green = new Color((Device) display, 255, 255, 255);
+	      fg_blue = new Color((Device) display, 255, 255, 255);
+	      bg_blue = new Color((Device) display, 0, 0, 0);
+	      
+	      setBackground( bg_white );
+      }else{
+	      fg_black = new Color((Device) display, 0, 0, 0);
+	      fg_white = new Color((Device) display, 255, 255, 255);
+	      bg_white = new Color((Device) display, 255, 255, 255);
+	      bg_light = new Color((Device) display, 200, 200, 200);
+	      fg_grey = new Color((Device) display, 50, 50, 50);
+	      fg_green = new Color((Device) display, 30, 80, 30);
+	      fg_blue = new Color((Device) display, 20, 20, 80);
+	      bg_blue = new Color((Device) display, 20, 20, 80);
+      }
+      
+      addListener( SWT.Dispose, (ev)->{
+    	  fg_black.dispose();
+    	  fg_white.dispose();
+    	  bg_white.dispose();
+    	  bg_light.dispose();
+    	  fg_grey.dispose();
+    	  fg_green.dispose();
+    	  fg_blue.dispose();
+    	  bg_blue.dispose();
+      });
+      
       Color fg, bg;
       int style;
       boolean setStyle;
 
-      this.setForeground(grey);
+      this.setForeground(fg_grey);
 
       String line;
       while((line = in.readLine()) != null) {
 
         setStyle = false;
-        fg = grey;
-        bg = white;
+        fg = fg_grey;
+        bg = bg_white;
         style = SWT.NORMAL;
 
         char styleChar;
@@ -102,13 +140,13 @@ public class Help extends StyledText {
         switch(styleChar) {
           case '*':
             text = "  * " + text;
-            fg = green;
+            fg = fg_green;
             setStyle = true;
             break;
           case '+':
             text = "     " + text;
-            fg = black;
-            bg = light;
+            fg = fg_black;
+            bg = bg_light;
             style = SWT.BOLD;
             setStyle = true;
             break;
@@ -117,12 +155,12 @@ public class Help extends StyledText {
             setStyle = true;
             break;
           case '@':
-            fg = blue;
+            fg = fg_blue;
             setStyle = true;
             break;
           case '$':
-            bg = blue;
-            fg = white;
+            bg = bg_blue;
+            fg = fg_white;
             style = SWT.BOLD;
             setStyle = true;
             break;
