@@ -19,7 +19,6 @@
 
 package org.kmallan.azureus.rssfeed;
 
-import org.eclipse.swt.custom.*;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.SWT;
@@ -82,6 +81,9 @@ public class ListTreeItem extends TreeItem {
   }
 
   public void update() {
+	  if ( isDisposed()){
+		  return;
+	  }
     if(isFeed) {
       UrlBean urlBean = (UrlBean)data;
       if(isBackLog) {

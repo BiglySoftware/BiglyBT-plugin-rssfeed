@@ -238,7 +238,12 @@ public class TorrentDownloader {
 								} catch (Exception e) {
 								}
 	            } else {
-	              if(!Plugin.getBooleanParameter("AutoStartManual")) download.stop();
+	              if(!Plugin.getBooleanParameter("AutoStartManual")){
+	            	  int state = download.getState();
+	            	  if ( state != Download.ST_STOPPED && state != Download.ST_STOPPING && state != Download.ST_ERROR ){
+	            		  download.stop();
+	            	  }
+	              }
 	              view.histAdd(listBean, download, dataLocation);
 	            }
 	          }

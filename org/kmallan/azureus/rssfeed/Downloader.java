@@ -245,9 +245,11 @@ public class Downloader extends InputStream {
 	
 						  if(con instanceof HttpURLConnection) {
 							  if ( !is_magnet ){
+								  /* yes it is, removed. if you're going to do it make sure you include the port number too (if not default)
 								  Pattern exprHost = Pattern.compile("https?://([^/]+@)?([^/@:]+)(:[0-9]+)?/.*");
 								  Matcher m = exprHost.matcher(target_url_str.toLowerCase());
 								  if(m.matches()) con.setRequestProperty("Host", m.group(2)); // isn't this handled automatically? /bow
+								  */
 							  }
 							  con.setRequestProperty("User-Agent", Plugin.PLUGIN_VERSION);
 							  if(referer != null && referer.length() > 0) con.setRequestProperty("Referer", referer);
