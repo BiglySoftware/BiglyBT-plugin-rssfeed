@@ -1966,7 +1966,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
               storeFile = slp[slp.length - 1];
               storeLoc = storeLoc.substring(0, storeLoc.lastIndexOf(rssfeedConfig.separator));
             }
-            success = torrentDownloader.addTorrent(curTorrent, torrentLocation, listBean, storeLoc, storeFile, null );
+            success = torrentDownloader.addTorrent(curTorrent, torrentLocation, listBean, storeLoc, storeFile );
             if(!success) listBean.setState(ListBean.DOWNLOAD_FAIL);
           }
         } catch(Exception e) {

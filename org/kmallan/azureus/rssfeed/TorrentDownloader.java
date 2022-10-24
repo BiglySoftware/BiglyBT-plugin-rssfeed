@@ -21,16 +21,20 @@ package org.kmallan.azureus.rssfeed;
 
 import com.biglybt.core.category.CategoryManager;
 import com.biglybt.core.config.COConfigurationManager;
-import com.biglybt.core.util.Constants;
+import com.biglybt.core.util.AENetworkClassifier;
 import com.biglybt.core.util.Debug;
 import com.biglybt.core.util.FileUtil;
+import com.biglybt.core.util.TorrentUtils;
 import com.biglybt.pif.download.*;
 import com.biglybt.pif.torrent.*;
 import com.biglybt.pifimpl.local.PluginCoreUtils;
-
+import com.biglybt.ui.UIFunctions;
+import com.biglybt.ui.UIFunctionsManager;
 import com.biglybt.core.tag.Tag;
 import com.biglybt.core.tag.TagManagerFactory;
 import com.biglybt.core.tag.TagType;
+import com.biglybt.core.torrent.TOTorrent;
+import com.biglybt.core.torrent.impl.TorrentOpenOptions;
 
 import javax.swing.text.html.parser.ParserDelegator;
 
@@ -123,79 +127,8 @@ public class TorrentDownloader {
 	
 	        if(defaultPath.length() > 0) {
 	          File dataLocation = setFile(defaultPath, storeFile);
-	
-	          DownloadWillBeAddedListener dwba =
-	        	new DownloadWillBeAddedListener()
-	          	{
-	        	  @Override
-		          public void
-	        	  initialised(
-	        			Download download) 
-	        	  {
-	        		  	// handle tags here so that any initial-download-location is taken account of
-	        		  
-	  	            if ( filterBean != null ){
-	  	            	
-	  	            	String category_or_tag_name = filterBean.getCategory();
-	  	            	
-						if ( category_or_tag_name.length() > 0 ){
-							
-							if ( CategoryManager.getCategory( category_or_tag_name ) == null ){
-							
-								category_or_tag_name = category_or_tag_name.replace( ';', ',' );
-								
-								String[] tags = category_or_tag_name.split( "," );
-								
-								TagType tt_cat	= TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_CATEGORY );
-								TagType tt_dm	= TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_MANUAL );
-
-								for ( String tag_name: tags ){
-									
-									tag_name = tag_name.trim();
-											
-									if ( tag_name.length() == 0 ){
-										
-										continue;
-									}
-										
-									Tag tag = tt_cat.getTag( tag_name, true );
-									
-									if ( tag != null ){
-										
-											// if a category exists with this name then use that
-										
-										tag.addTaggable( PluginCoreUtils.unwrap( download ));
-										
-									}else{
-										
-											// otherwise use existing/create manual tag
-										
-										tag = tt_dm.getTag( tag_name, true );
-										
-										if ( tag == null ){
-											
-											try{
-												tag = tt_dm.createTag( tag_name, true );
-												
-											}catch( Throwable e ){
-												
-												Debug.out( e );
-											}
-										}
-		
-										if ( tag != null ){
-											
-											tag.addTaggable( PluginCoreUtils.unwrap( download ));
-										}
-									}
-								}
-							}
-						}
-	  	            }
-	          	  }
-	          	};
-	          	
-	          final Download download = addTorrent(curTorrent, torrentLocation, dataLocation, dwba );
+		          	
+	          final Download download = addTorrent(curTorrent, torrentLocation, dataLocation, filterBean );
 	          ret = (download != null);
 	          Plugin.debugOut("ret: " + ret + " download: " + download);
 	
@@ -273,21 +206,160 @@ public class TorrentDownloader {
     return ret;
   }
 
-  public boolean addTorrent(Torrent curTorrent, File torrentLocation, ListBean listBean, String storeLoc, String storeFile, DownloadWillBeAddedListener dwba ) throws Exception {
+  public boolean addTorrent(Torrent curTorrent, File torrentLocation, ListBean listBean, String storeLoc, String storeFile ) throws Exception {
     File dataLocation = null;
     if(storeLoc != null && storeLoc.length() > 0) {
       dataLocation = setFile(storeLoc, storeFile);
     } else if(listBean != null && (listBean.getFeed()).getStoreDir().length() > 0) {
       dataLocation = setFile((listBean.getFeed()).getStoreDir(), null);
     }
-    Download download = addTorrent(curTorrent, torrentLocation, dataLocation,dwba);
+    Download download = addTorrent(curTorrent, torrentLocation, dataLocation, null);
     if(download != null) view.histAdd(listBean, download, dataLocation);
     return (download != null);
   }
 
-  private Download addTorrent(final Torrent curTorrent, File torrentLocation, File dataLocation, final DownloadWillBeAddedListener external_dwba) throws Exception {
+  private Download 
+  addTorrent(
+	Torrent curTorrent, 
+	File torrentLocation, 
+	File dataLocation, 
+	FilterBean filterBean ) 
+			
+		throws Exception 
+  {  
     Download download = null;
-    if(torrentLocation != null && dataLocation != null) {
+    
+    if ( torrentLocation != null && dataLocation != null ){
+    	
+		if ( Plugin.getBooleanParameter( "ApplyTorrentOptions" )){
+			
+			try{
+				UIFunctions uif = UIFunctionsManager.getUIFunctions();
+				
+				Map<String,Object> too_opts = new HashMap<>(); 
+						
+				too_opts.put( UIFunctions.OTO_DEFAULT_SAVE_PATH, dataLocation.getParentFile().getAbsolutePath());
+				
+				TorrentOpenOptions torrentOptions = new TorrentOpenOptions( too_opts );
+				
+				TOTorrent to_torrent = PluginCoreUtils.unwrap( curTorrent );
+				
+				String torrent_file = TorrentUtils.getTorrentFileName( to_torrent, false );
+				
+				if ( torrent_file == null || !FileUtil.newFile( torrent_file ).equals( torrentLocation )){
+										
+					TorrentUtils.writeToFile( to_torrent, torrentLocation, false );
+				}
+				
+				torrentOptions.setDeleteFileOnCancel( false );
+				torrentOptions.setTorrentFile( torrentLocation.getAbsolutePath());
+				torrentOptions.setTorrent( to_torrent );
+				
+				String[] networks = view.getPlugin().getForcedNetworks();
+				
+				if ( networks != null ){
+						
+					for ( String net: AENetworkClassifier.AT_NETWORKS ){
+						
+						torrentOptions.setNetworkEnabled( net, false );
+					}
+					
+					for ( String net: networks ){
+					
+						torrentOptions.setNetworkEnabled( net, true );
+					}
+				}
+				
+	            if ( filterBean != null ){
+	            	
+	            	String category_or_tag_name = filterBean.getCategory();
+	            	
+					if ( category_or_tag_name.length() > 0 ){
+						
+						if ( CategoryManager.getCategory( category_or_tag_name ) == null ){
+						
+							category_or_tag_name = category_or_tag_name.replace( ';', ',' );
+							
+							String[] tags = category_or_tag_name.split( "," );
+							
+							TagType tt_cat	= TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_CATEGORY );
+							TagType tt_dm	= TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_MANUAL );
+
+							List<Tag>	initial_tags = new ArrayList<>();
+							
+							for ( String tag_name: tags ){
+								
+								tag_name = tag_name.trim();
+										
+								if ( tag_name.length() == 0 ){
+									
+									continue;
+								}
+									
+								Tag tag = tt_cat.getTag( tag_name, true );
+								
+								if ( tag != null ){
+									
+										// if a category exists with this name then use that
+									
+									initial_tags.add( tag );
+									
+								}else{
+									
+										// otherwise use existing/create manual tag
+									
+									tag = tt_dm.getTag( tag_name, true );
+									
+									if ( tag == null ){
+										
+										try{
+											tag = tt_dm.createTag( tag_name, true );
+											
+										}catch( Throwable e ){
+											
+											Debug.out( e );
+										}
+									}
+
+									if ( tag != null ){
+										
+										initial_tags.add( tag );
+									}
+								}
+							}
+							
+							if (!initial_tags.isEmpty()){
+								
+								torrentOptions.setInitialTags( initial_tags );
+							}
+						}
+					}
+				}			
+				
+				Map<String,Object> addOptions = new HashMap<>();
+				
+				addOptions.put( UIFunctions.OTO_SILENT, true );
+				addOptions.put( UIFunctions.OTO_FORCE_OPEN, false );
+				
+				uif.addTorrentWithOptions( torrentOptions, addOptions );
+				
+				download = downloadManager.getDownload( curTorrent.getHash());
+				
+				if ( download != null ){
+					
+					return( download );
+					
+				}else{
+					
+					Debug.out( "Download wasn't synchronously added..." );
+					
+					return( null );
+				}
+			}catch( Throwable e ){
+				
+				Debug.out( e );
+			}
+		}	
     	
 		DownloadWillBeAddedListener dwba = 
 			new DownloadWillBeAddedListener() 
@@ -306,9 +378,65 @@ public class TorrentDownloader {
 							PluginCoreUtils.unwrap( download ).getDownloadState().setNetworks( networks );
 						}
 						
-						if ( external_dwba != null ){
-							
-							external_dwba.initialised( download );
+							// handle tags here so that any initial-download-location is taken account of
+			    		  
+			            if ( filterBean != null ){
+			            	
+			            	String category_or_tag_name = filterBean.getCategory();
+			            	
+							if ( category_or_tag_name.length() > 0 ){
+								
+								if ( CategoryManager.getCategory( category_or_tag_name ) == null ){
+								
+									category_or_tag_name = category_or_tag_name.replace( ';', ',' );
+									
+									String[] tags = category_or_tag_name.split( "," );
+									
+									TagType tt_cat	= TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_CATEGORY );
+									TagType tt_dm	= TagManagerFactory.getTagManager().getTagType( TagType.TT_DOWNLOAD_MANUAL );
+	
+									for ( String tag_name: tags ){
+										
+										tag_name = tag_name.trim();
+												
+										if ( tag_name.length() == 0 ){
+											
+											continue;
+										}
+											
+										Tag tag = tt_cat.getTag( tag_name, true );
+										
+										if ( tag != null ){
+											
+												// if a category exists with this name then use that
+											
+											tag.addTaggable( PluginCoreUtils.unwrap( download ));
+											
+										}else{
+											
+												// otherwise use existing/create manual tag
+											
+											tag = tt_dm.getTag( tag_name, true );
+											
+											if ( tag == null ){
+												
+												try{
+													tag = tt_dm.createTag( tag_name, true );
+													
+												}catch( Throwable e ){
+													
+													Debug.out( e );
+												}
+											}
+	
+											if ( tag != null ){
+												
+												tag.addTaggable( PluginCoreUtils.unwrap( download ));
+											}
+										}
+									}
+								}
+							}
 						}
 					}
 				}

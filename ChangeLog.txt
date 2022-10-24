@@ -1,5 +1,6 @@
 RSSFEED CHANGELOG - Changes by parg@users.sourceforge.net
 ---------------------------------------------
+1.8.3  - Added option to apply options normally applied when manually adding downloads (e.g. auto-prioritize) [Parg]
 1.8.2  - Pass correct HOST header to feed downloads; Don't attempt to stop already stopped downloads [Parg]
 1.8.1  - Make Help text readable in dark mode [Parg]
 1.8    - Assign existing categories as well as existing/created tags [Parg]

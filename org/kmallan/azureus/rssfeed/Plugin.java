@@ -73,6 +73,7 @@ public class Plugin implements com.biglybt.pif.Plugin {
 		IntParameter		auto_reload_delay 	= config.addIntParameter2("Delay", "RSSFeed.Config.Delay", 900);
 		config.addBooleanParameter2("AutoLoad", "RSSFeed.Config.AutoLoad", false);
 		config.addBooleanParameter2("AutoStartManual", "RSSFeed.Config.AutoStartManual", true);
+		config.addBooleanParameter2("ApplyTorrentOptions", "RSSFeed.Config.ApplyTorrentOptions", false);
 		config.addIntParameter2("KeepOld", "RSSFeed.Config.KeepOld", 2);
 		config.addIntParameter2("KeepMax", "RSSFeed.Config.KeepMax", 1000);
 		final BooleanParameter fnp = config.addBooleanParameter2("ForceNoProxy", "RSSFeed.Config.ForceNoProxy", false);
