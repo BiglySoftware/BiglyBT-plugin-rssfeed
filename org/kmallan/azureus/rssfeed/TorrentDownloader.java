@@ -22,6 +22,7 @@ package org.kmallan.azureus.rssfeed;
 import com.biglybt.core.category.CategoryManager;
 import com.biglybt.core.config.COConfigurationManager;
 import com.biglybt.core.util.AENetworkClassifier;
+import com.biglybt.core.util.ByteFormatter;
 import com.biglybt.core.util.Debug;
 import com.biglybt.core.util.FileUtil;
 import com.biglybt.core.util.TorrentUtils;
@@ -238,7 +239,14 @@ public class TorrentDownloader {
 				
 				Map<String,Object> too_opts = new HashMap<>(); 
 						
-				too_opts.put( UIFunctions.OTO_DEFAULT_SAVE_PATH, dataLocation.getParentFile().getAbsolutePath());
+				File saveDir = curTorrent.isSimpleTorrent()?dataLocation.getParentFile():dataLocation;
+				
+				if ( !saveDir.isDirectory()){
+					
+					saveDir = saveDir.getParentFile();
+				}
+				
+				too_opts.put( UIFunctions.OTO_DEFAULT_SAVE_PATH, saveDir.getAbsolutePath());
 				
 				TorrentOpenOptions torrentOptions = new TorrentOpenOptions( too_opts );
 				
@@ -336,17 +344,23 @@ public class TorrentDownloader {
 					}
 				}			
 				
+	            byte[] hash = curTorrent.getHash();
+	            
 				Map<String,Object> addOptions = new HashMap<>();
 				
 				addOptions.put( UIFunctions.OTO_SILENT, true );
 				addOptions.put( UIFunctions.OTO_FORCE_OPEN, false );
 				
+				FileUtil.log( "RSSFeed: adding with options: " + ByteFormatter.encodeString( hash ));
+
 				uif.addTorrentWithOptions( torrentOptions, addOptions );
 				
-				download = downloadManager.getDownload( curTorrent.getHash());
+				download = downloadManager.getDownload( hash );
 				
 				if ( download != null ){
 					
+					FileUtil.log( "RSSFeed: adding with options: magnet returned: " + download.getFlag( Download.FLAG_METADATA_DOWNLOAD ));
+
 					return( download );
 					
 				}else{
@@ -445,7 +459,16 @@ public class TorrentDownloader {
 		try{
     		downloadManager.addDownloadWillBeAddedListener(dwba);
     		
+            byte[] hash = curTorrent.getHash();
+
+    		FileUtil.log( "RSSFeed: adding without options: " + ByteFormatter.encodeString( hash ));
+
     		download = downloadManager.addDownload(curTorrent, torrentLocation, dataLocation);
+    		
+    		if ( download != null ){
+			
+    			FileUtil.log( "RSSFeed: adding without options: magnet returned: " + download.getFlag( Download.FLAG_METADATA_DOWNLOAD ));
+    		}
     		
     	}finally{
     		    			
