@@ -1,5 +1,6 @@
 RSSFEED CHANGELOG - Changes by parg@users.sourceforge.net
 ---------------------------------------------
+1.8.5  - Internat update [Various]
 1.8.4  - Added debug for magnet download in stopped state issue [Parg]
 1.8.3  - Added option to apply options normally applied when manually adding downloads (e.g. auto-prioritize) [Parg]
 1.8.2  - Pass correct HOST header to feed downloads; Don't attempt to stop already stopped downloads [Parg]
