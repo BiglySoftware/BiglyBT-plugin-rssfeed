@@ -255,10 +255,10 @@ public class Scheduler extends TimerTask {
         if(downloader.getState() == Downloader.DOWNLOADER_CANCELED) break;
         read = downloader.read(buf);
         if(read > 0) {
-          System.err.print(".");
+          //System.err.print(".");
           fileout.write(buf, 0, read);
         } else if(read == 0) {
-          System.err.print("?");
+          //System.err.print("?");
           try {
             long numMillisecondsToSleep = 100;
             Thread.sleep(numMillisecondsToSleep);
