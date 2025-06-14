@@ -33,6 +33,8 @@ import com.biglybt.core.util.Debug;
 import com.biglybt.pif.download.Download;
 import com.biglybt.pif.torrent.Torrent;
 import com.biglybt.ui.swt.*;
+import com.biglybt.ui.swt.mainwindow.Colors;
+import com.biglybt.ui.swt.views.table.painted.TablePaintedUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -987,19 +989,30 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
       urlItem = new UrlTableItem(urlTable, rssfeedConfig);
       urlItem.setBean(i);
     }
-    Utils.alternateTableBackground(urlTable);
+    
+    boolean dark = Utils.isDarkAppearanceNative();
+    
+    if ( !dark ){
+    	alternateTableBackground(urlTable);
+    }
 
     for(int i = 0; i < rssfeedConfig.getFilterCount(); i++) {
       filterItem = new FilterTableItem(filtTable, rssfeedConfig);
       filterItem.setBean(i, this);
     }
-    Utils.alternateTableBackground(filtTable);
+    
+    if ( !dark ){
+    	alternateTableBackground(filtTable);
+    }
 
     for(int i = 0; i < rssfeedConfig.getHistoryCount(); i++) {
       histItem = new HistoryTableItem(histTable, rssfeedConfig, i);
       histItem.setBean(i);
     }
-    Utils.alternateTableBackground(histTable);
+    
+    if ( !dark ){
+    	alternateTableBackground(histTable);
+    }
   }
 
   private void urlOrder(int move) {
@@ -2137,5 +2150,66 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     }
 
   }
+  
+  private static int getTableBottomIndex(Table table, int iTopIndex) {
+
+	  // Shortcut: if lastBottomIndex is present, assume it's accurate
+	  Object lastBottomIndex = table.getData("lastBottomIndex");
+	  if (lastBottomIndex instanceof Number) {
+		  return ((Number)lastBottomIndex).intValue();
+	  }
+
+	  int columnCount = table.getColumnCount();
+	  if (columnCount == 0) {
+		  return -1;
+	  }
+	  int xPos = table.getColumn(0).getWidth() - 1;
+	  if (columnCount > 1) {
+		  xPos += table.getColumn(1).getWidth();
+	  }
+
+	  Rectangle clientArea = table.getClientArea();
+	  TableItem bottomItem = table.getItem(new Point(xPos,
+			  clientArea.y + clientArea.height - 2));
+	  if (bottomItem != null) {
+		  return table.indexOf(bottomItem);
+	  }
+	  return table.getItemCount() - 1;
+  }
+  
+  private static void alternateTableBackground(Table table) {
+		if (table == null || table.isDisposed())
+			return;
+
+		if (Utils.TABLE_GRIDLINE_IS_ALTERNATING_COLOR) {
+			if (!table.getLinesVisible())
+				table.setLinesVisible(true);
+			return;
+		}
+
+		int iTopIndex = table.getTopIndex();
+		if (iTopIndex < 0 || (iTopIndex == 0 && table.getItemCount() == 0)) {
+			return;
+		}
+		int iBottomIndex = getTableBottomIndex(table, iTopIndex);
+
+		Color[] colors = {
+			Colors.getSystemColor(table.getDisplay(), SWT.COLOR_LIST_BACKGROUND),
+			TablePaintedUtils.isDark()?Colors.colorAltRowDefault:Colors.colorAltRow
+		};
+		int iFixedIndex = iTopIndex;
+		for (int i = iTopIndex; i <= iBottomIndex; i++) {
+			TableItem row = table.getItem(i);
+			// Rows can be disposed!
+			if (!row.isDisposed()) {
+				Color newColor = colors[iFixedIndex % colors.length];
+				iFixedIndex++;
+				if (!row.getBackground().equals(newColor)) {
+					//        System.out.println("setting "+rows[i].getBackground() +" to " + newColor);
+					row.setBackground(newColor);
+				}
+			}
+		}
+	}
 }
 

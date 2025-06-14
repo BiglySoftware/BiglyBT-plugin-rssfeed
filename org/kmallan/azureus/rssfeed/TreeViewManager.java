@@ -19,13 +19,8 @@
 
 package org.kmallan.azureus.rssfeed;
 
-import org.eclipse.swt.custom.*;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
 
-import com.biglybt.ui.swt.mainwindow.Colors;
 
 import java.util.*;
 

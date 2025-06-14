@@ -21,6 +21,9 @@ package org.kmallan.azureus.rssfeed;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.TreeItem;
+
+import com.biglybt.ui.swt.Utils;
+
 import org.eclipse.swt.SWT;
 
 import java.util.Map;
@@ -38,14 +41,18 @@ public class ListTreeItem extends TreeItem {
     super(view.listTable, SWT.NULL);
     this.view = view;
     this.isFeed = true;
-    this.defaultForeground = this.getForeground();
+    if ( !Utils.isDarkAppearanceNativeWindows()){
+    	this.defaultForeground = this.getForeground();
+    }
   }
 
   public ListTreeItem(ListTreeItem parent, View view) {
     super(parent, SWT.NULL, parent.isBackLog()?0:parent.getItemCount()); // reverse order for backlog items
     this.view = view;
     this.isFeed = false;
-    this.defaultForeground = this.getForeground();
+    if ( !Utils.isDarkAppearanceNativeWindows()){
+    	this.defaultForeground = this.getForeground();
+    }
   }
 
   public ListTreeItem(ListTreeItem parent, View view, boolean isBackLog) {
@@ -54,7 +61,9 @@ public class ListTreeItem extends TreeItem {
     this.isFeed = true;
     this.isBackLog = isBackLog;
     if(isBackLog) parent.setBackLogItem(this);
-    this.defaultForeground = this.getForeground();
+    if ( !Utils.isDarkAppearanceNativeWindows()){
+    	this.defaultForeground = this.getForeground();
+    }
   }
 
   public boolean isFeed() {

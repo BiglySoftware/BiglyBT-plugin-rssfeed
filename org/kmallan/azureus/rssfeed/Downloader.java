@@ -21,6 +21,7 @@
 package org.kmallan.azureus.rssfeed;
 
 import com.biglybt.core.security.SESecurityManager;
+import com.biglybt.core.util.AENetworkClassifier;
 import com.biglybt.core.util.Constants;
 import com.biglybt.core.util.Debug;
 import com.biglybt.core.util.RandomUtils;
@@ -159,6 +160,12 @@ public class Downloader extends InputStream {
 		  try {
 			  URL target_url = new URL(target_url_str);
 	
+			  if ( 	proxy_opt == Plugin.PROXY_DEFAULT &&
+					AENetworkClassifier.categoriseAddress( target_url.getHost()) != AENetworkClassifier.AT_PUBLIC ){
+						
+				  proxy_opt = Plugin.PROXY_TRY_PLUGIN;
+			  }
+			  
 			  if ( proxy_opt == Plugin.PROXY_FORCE_NONE ){
 	
 				  AEProxySelectorFactory.getSelector().startNoProxy();

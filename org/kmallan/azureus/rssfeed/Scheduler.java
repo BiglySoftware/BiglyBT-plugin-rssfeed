@@ -21,6 +21,8 @@ package org.kmallan.azureus.rssfeed;
 
 import org.apache.commons.lang.Entities;
 import org.eclipse.swt.graphics.Color;
+
+import com.biglybt.core.util.AENetworkClassifier;
 import com.biglybt.core.util.Debug;
 import org.w3c.dom.*;
 import org.xml.sax.*;
@@ -282,7 +284,18 @@ public class Scheduler extends TimerTask {
 					
 					// handle bad DTD external refs
 					
-					if ( Plugin.getProxyOption() == Plugin.PROXY_TRY_PLUGIN ){
+					int proxy_opt = Plugin.getProxyOption();
+					
+					try{
+						if ( 	proxy_opt == Plugin.PROXY_DEFAULT &&
+								AENetworkClassifier.categoriseAddress( new URL(url).getHost()) != AENetworkClassifier.AT_PUBLIC ){
+									
+							  proxy_opt = Plugin.PROXY_TRY_PLUGIN;
+						}
+					}catch( Throwable e ){
+					}
+					
+					if ( proxy_opt == Plugin.PROXY_TRY_PLUGIN ){
 				
 						return new InputSource(	new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
 					}

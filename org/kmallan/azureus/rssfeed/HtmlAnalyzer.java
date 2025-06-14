@@ -26,6 +26,7 @@ import com.biglybt.core.networkmanager.admin.NetworkAdmin;
 import com.biglybt.core.proxy.AEProxyFactory;
 import com.biglybt.core.proxy.AEProxySelectorFactory;
 import com.biglybt.core.proxy.AEProxyFactory.PluginProxy;
+import com.biglybt.core.util.AENetworkClassifier;
 import com.biglybt.plugin.extseed.ExternalSeedException;
 
 import java.util.*;
@@ -204,6 +205,12 @@ public class HtmlAnalyzer extends HTMLEditorKit.ParserCallback implements Runnab
       URL 	url 		= new URL( _href );
       URL	initial_url	= url;
       Proxy	proxy		= null;
+      
+      if ( 	proxy_opt == Plugin.PROXY_DEFAULT &&
+			AENetworkClassifier.categoriseAddress( url.getHost()) != AENetworkClassifier.AT_PUBLIC ){
+					
+		  proxy_opt = Plugin.PROXY_TRY_PLUGIN;
+      }
       
       if ( proxy_opt == Plugin.PROXY_FORCE_NONE ){
     		
