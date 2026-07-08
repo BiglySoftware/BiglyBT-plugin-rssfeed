@@ -41,12 +41,52 @@ import javax.swing.text.html.parser.ParserDelegator;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TorrentDownloader {
 
   private View view;
   private TorrentManager torrentManager;
   private DownloadManager downloadManager;
+
+  private static final Object executorLock = new Object();
+  private static ThreadPoolExecutor executor;
+
+  private static Executor getExecutor() {
+    synchronized(executorLock) {
+      int max = Plugin.getIntParameter("MagnetMaxConcurrent", 3);
+      if(max < 1) max = 1;
+      if(executor == null) {
+        executor = new ThreadPoolExecutor(max, max, 30, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<Runnable>(),
+            new ThreadFactory() {
+              private final AtomicInteger counter = new AtomicInteger();
+              @Override
+              public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "RSSFeed-TorrentDownloader-" + counter.incrementAndGet());
+                t.setDaemon(true);
+                return t;
+              }
+            });
+        executor.allowCoreThreadTimeOut(true);
+      } else if(executor.getCorePoolSize() != max) {
+        // grow max before core, shrink core before max, to satisfy pool invariants
+        if(max > executor.getMaximumPoolSize()) {
+          executor.setMaximumPoolSize(max);
+          executor.setCorePoolSize(max);
+        } else {
+          executor.setCorePoolSize(max);
+          executor.setMaximumPoolSize(max);
+        }
+      }
+      return executor;
+    }
+  }
 
   public TorrentDownloader(View view, TorrentManager torrentManager, DownloadManager downloadManager) {
     this.view = view;
@@ -79,6 +119,59 @@ public class TorrentDownloader {
 
   public boolean addTorrent(FilterBean filterBean, ListBean listBean) {
     return addTorrent(listBean.getLocation(), listBean.getFeed(), filterBean, listBean);
+  }
+
+  /**
+   * Submit a feed-item download to the shared bounded thread pool so that feed
+   * processing is not blocked while the torrent (notably a magnet link) is
+   * retrieved. On completion the filter "disable after" rule is applied and the
+   * feed's per-item failure/skip tracking is updated.
+   */
+  public void addTorrentAsync(final String link, final UrlBean urlBean, final FilterBean filterBean, final ListBean listBean) {
+    getExecutor().execute(new Runnable() {
+      @Override
+      public void run() {
+        boolean success = false;
+        try {
+          success = addTorrent(link, urlBean, filterBean, listBean);
+        } catch(Throwable e) {
+          Debug.out(e);
+        }
+
+        try {
+          if(success) {
+            if(filterBean != null && filterBean.getTypeIndex() == FilterBean.TYPE_OTHER && filterBean.getDisableAfter())
+              filterBean.setEnabled(false);
+            // a previously failing item now succeeded: drop its failure record
+            if(urlBean.clearSkipIfPresent(link))
+              view.rssfeedConfig.storeOptions();
+          } else {
+            // count genuine download failures (timeout / error) towards the retry
+            // limit, but not size-exclusions or user-initiated cancel/skip
+            int st = listBean.getState();
+            boolean genuineFailure = (st == ListBean.DOWNLOAD_FAIL || st == Downloader.DOWNLOADER_ERROR)
+                && !urlBean.isManualSkipped(link);
+            if(genuineFailure) {
+              int maxRetries = Plugin.getIntParameter("MagnetMaxRetries", 3);
+              urlBean.recordFailure(link, listBean.getName(), maxRetries);
+              view.rssfeedConfig.storeOptions();
+            }
+          }
+        } catch(Throwable e) {
+          Debug.out(e);
+        }
+
+        if(view.isOpen() && view.display != null && !view.display.isDisposed())
+          view.display.asyncExec(new Runnable() {
+            @Override
+            public void run() {
+              if(view.listTable == null || view.listTable.isDisposed()) return;
+              ListTreeItem listItem = view.treeViewManager.getItem(listBean);
+              if(listItem != null) listItem.update();
+            }
+          });
+      }
+    });
   }
 
   public boolean addTorrent(String link, final UrlBean urlBean, final FilterBean filterBean, final ListBean listBean) {

@@ -1,5 +1,6 @@
 RSSFEED CHANGELOG - Changes by parg@users.sourceforge.net
 ---------------------------------------------
+1.8.7  - Non-blocking feed processing for magnet/torrent downloads (configurable max concurrent); auto-skip items after a configurable number of failed download attempts; manual Skip/Ignore item action [chplanty]
 1.8.6  - Internat update [Various]; fixed some non-public URL handing [Parg]; fixed some dark mode cheese [Parg]
 1.8.5  - Internat update [Various]
 1.8.4  - Added debug for magnet download in stopped state issue [Parg]

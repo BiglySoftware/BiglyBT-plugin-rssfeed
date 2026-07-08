@@ -33,6 +33,7 @@ public class UrlBean implements Serializable {
   private boolean obeyTTL = true, locReferer = true, useCookie = false, enabled;
   private int delay = 0, prevBackLogSize;
   private List backLog;
+  private List skipList;
 
   private transient String status = "", error = "";
   private transient boolean hitting = false, refreshNow = false;
@@ -313,6 +314,83 @@ public class UrlBean implements Serializable {
 
   public void setLastEtag(String lastEtag) {
     this.lastEtag = lastEtag;
+  }
+
+  // --- per-item skip / failed-download tracking ---------------------------
+
+  private SkipBean findSkip(String location) {
+    if(skipList == null || location == null) return null;
+    for(Iterator iter = skipList.iterator(); iter.hasNext(); ) {
+      SkipBean sb = (SkipBean)iter.next();
+      if(sb != null && location.equalsIgnoreCase(sb.getLocation())) return sb;
+    }
+    return null;
+  }
+
+  public synchronized SkipBean getSkip(String location) {
+    return findSkip(location);
+  }
+
+  public synchronized boolean isSkipped(String location, int maxRetries) {
+    SkipBean sb = findSkip(location);
+    return sb != null && sb.isSkipped(maxRetries);
+  }
+
+  public synchronized boolean isManualSkipped(String location) {
+    SkipBean sb = findSkip(location);
+    return sb != null && sb.isManualSkip();
+  }
+
+  /**
+   * Record a failed download attempt for the given item. Returns true if the
+   * item has now reached the configured retry limit and should be auto-skipped.
+   */
+  public synchronized boolean recordFailure(String location, String name, int maxRetries) {
+    if(location == null || location.length() == 0) return false;
+    if(skipList == null) skipList = new ArrayList();
+    SkipBean sb = findSkip(location);
+    if(sb == null) {
+      sb = new SkipBean(location, name);
+      skipList.add(sb);
+    } else if((sb.getName() == null || sb.getName().length() == 0) && name != null) {
+      sb.setName(name);
+    }
+    sb.recordFailure();
+    return sb.isSkipped(maxRetries);
+  }
+
+  /**
+   * Clear any failure/skip record for the given item (e.g. after a successful
+   * download). A manual skip is left in place. Reports whether anything was
+   * actually removed so callers can avoid an unnecessary config save.
+   */
+  public synchronized boolean clearSkipIfPresent(String location) {
+    if(skipList == null || location == null) return false;
+    SkipBean sb = findSkip(location);
+    if(sb != null && !sb.isManualSkip()) {
+      skipList.remove(sb);
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Set or clear the manual skip flag for the given item. Clearing also resets
+   * the failure count so the item gets a fresh set of retries.
+   */
+  public synchronized void setManualSkip(String location, String name, boolean skip) {
+    if(location == null || location.length() == 0) return;
+    if(skipList == null) skipList = new ArrayList();
+    SkipBean sb = findSkip(location);
+    if(skip) {
+      if(sb == null) {
+        sb = new SkipBean(location, name);
+        skipList.add(sb);
+      }
+      sb.setManualSkip(true);
+    } else if(sb != null) {
+      skipList.remove(sb);
+    }
   }
 
   public boolean equals(Object o) {

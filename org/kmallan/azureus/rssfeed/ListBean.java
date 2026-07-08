@@ -26,6 +26,7 @@ public class ListBean implements Serializable {
   static final long serialVersionUID = -4786592909020746490L;
 
   public static final int DOWNLOAD_INCL = 10, DOWNLOAD_EXCL = 11, DOWNLOAD_FAIL = 12, DOWNLOAD_HIST = 13;
+  public static final int DOWNLOAD_SKIP = 14;
   public static final int NO_DOWNLOAD = 99;
 
   private String name, location, description;
@@ -136,6 +137,10 @@ public class ListBean implements Serializable {
         this.completed = true;
         info = "Hist";
         break;
+      case DOWNLOAD_SKIP:
+        this.completed = true;
+        info = "Skip" + (!"".equals(err)?" - " + err:"");
+        break;
     }
 
     return info;
@@ -153,7 +158,7 @@ public class ListBean implements Serializable {
     if(checkDone()){
     		// couple of cases where we want to pick up the new state as these can happen
     		// after the download of the torrent is complete...
-    	if ( state != DOWNLOAD_FAIL && state != DOWNLOAD_EXCL ){
+    	if ( state != DOWNLOAD_FAIL && state != DOWNLOAD_EXCL && state != DOWNLOAD_SKIP ){
     	
     		return;
     	}

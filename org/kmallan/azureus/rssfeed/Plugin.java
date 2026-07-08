@@ -76,6 +76,8 @@ public class Plugin implements com.biglybt.pif.Plugin {
 		config.addBooleanParameter2("ApplyTorrentOptions", "RSSFeed.Config.ApplyTorrentOptions", false);
 		config.addIntParameter2("KeepOld", "RSSFeed.Config.KeepOld", 2);
 		config.addIntParameter2("KeepMax", "RSSFeed.Config.KeepMax", 1000);
+		config.addIntParameter2("MagnetMaxConcurrent", "RSSFeed.Config.MagnetMaxConcurrent", 3);
+		config.addIntParameter2("MagnetMaxRetries", "RSSFeed.Config.MagnetMaxRetries", 3);
 		final BooleanParameter fnp = config.addBooleanParameter2("ForceNoProxy", "RSSFeed.Config.ForceNoProxy", false);
 		final BooleanParameter tpp = config.addBooleanParameter2("TryPluginProxy", "RSSFeed.Config.TryPluginProxy", false);
 			
@@ -301,6 +303,10 @@ public class Plugin implements com.biglybt.pif.Plugin {
 
   public static int getIntParameter(String name) {
     return pluginInterface.getPluginconfig().getPluginIntParameter(name);
+  }
+
+  public static int getIntParameter(String name, int def) {
+    return pluginInterface.getPluginconfig().getPluginIntParameter(name, def);
   }
 
   public static boolean getBooleanParameter(String name) {

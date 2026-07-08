@@ -171,7 +171,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
 
   private Menu histTableMenu, listTableMenu;
   private MenuItem itemCopyFile, itemCopyTorrent, itemDelete;
-  private MenuItem itemRefresh, itemRefreshAll, itemDownload, itemDownloadTo, itemCancel, itemCreateFilter, itemCopyLink, itemOpenLink, itemShowInfo;
+  private MenuItem itemRefresh, itemRefreshAll, itemDownload, itemDownloadTo, itemCancel, itemSkip, itemCreateFilter, itemCopyLink, itemOpenLink, itemShowInfo;
   private MenuItem itemExpandAll, itemCollapseAll;
 
   public TreeViewManager treeViewManager;
@@ -1250,7 +1250,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     histAdd(listBean, download, file, null);
   }
 
-  public void histAdd(ListBean listBean, Download download, File file, FilterBean filter) {
+  public synchronized void histAdd(ListBean listBean, Download download, File file, FilterBean filter) {
     String path = file.getPath();
     if(file.isDirectory()) {
       if(path.length() > 0 && !path.endsWith(rssfeedConfig.separator)) path = path + rssfeedConfig.separator;
@@ -1557,6 +1557,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
     itemDownload = setupListMenuItem("Download", "Download.gif");
     itemDownloadTo = setupListMenuItem("DownloadTo", "DownloadTo.gif");
     itemCancel = setupListMenuItem("Cancel", "Cancel.gif");
+    itemSkip = setupListMenuItem("Skip", "Remove.gif");
     new MenuItem(listTableMenu, SWT.SEPARATOR);
     itemCreateFilter = setupListMenuItem("FilterFrom", "Filter.gif");
     itemCopyLink = setupListMenuItem("CopyLink", "Copy.gif");
@@ -1760,6 +1761,27 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
         ListBean listBean = (ListBean)selListItem.getBean();
         if(listBean.downloader == null) return;
         listBean.downloader.cancel();
+      }
+
+    } else if(src == itemSkip) {
+      if(!selListItem.isFeed()) {
+        final ListBean listBean = (ListBean)selListItem.getBean();
+        UrlBean urlBean = listBean.getFeed();
+        String link = listBean.getLocation();
+        int maxRetries = Plugin.getIntParameter("MagnetMaxRetries", 3);
+        boolean currentlySkipped = urlBean.isSkipped(link, maxRetries);
+        if(currentlySkipped) {
+          // un-skip: drop the record entirely so the item is retried afresh
+          urlBean.setManualSkip(link, listBean.getName(), false);
+        } else {
+          // skip: flag it, abort any in-flight retrieval and mark it skipped
+          urlBean.setManualSkip(link, listBean.getName(), true);
+          if(listBean.downloader != null) listBean.downloader.cancel();
+          listBean.setError("");
+          listBean.setState(ListBean.DOWNLOAD_SKIP);
+        }
+        rssfeedConfig.storeOptions();
+        selListItem.update();
       }
 
     } else if(src == itemCopyLink) {
@@ -2034,6 +2056,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
         itemDownload.setEnabled(false);
         itemDownloadTo.setEnabled(false);
         itemCancel.setEnabled(false);
+        itemSkip.setEnabled(false);
         itemCreateFilter.setEnabled(false);
         itemCopyLink.setEnabled(false);
         itemOpenLink.setEnabled(false);
@@ -2044,6 +2067,7 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
           itemDownload.setEnabled(false);
           itemDownloadTo.setEnabled(false);
           itemCancel.setEnabled(false);
+          itemSkip.setEnabled(false);
           itemCreateFilter.setEnabled(false);
           itemCopyLink.setEnabled(true);
           itemOpenLink.setEnabled(true);
@@ -2057,6 +2081,12 @@ public class View implements MouseListener, SelectionListener, MenuListener, Mod
           } else {
             itemCancel.setEnabled(false);
           }
+          itemSkip.setEnabled(true);
+          int maxRetries = Plugin.getIntParameter("MagnetMaxRetries", 3);
+          boolean skipped = listBean.getFeed().isSkipped(listBean.getLocation(), maxRetries);
+          Messages.setLanguageText(itemSkip, skipped
+              ? "RSSFeed.Status.ListTable.Menu.Unskip"
+              : "RSSFeed.Status.ListTable.Menu.Skip");
           itemCreateFilter.setEnabled(true);
           itemCopyLink.setEnabled(true);
           itemOpenLink.setEnabled(true);

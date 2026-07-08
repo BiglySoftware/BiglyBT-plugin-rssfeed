@@ -590,23 +590,22 @@ public class Scheduler extends TimerTask {
         } else Plugin.debugOut("Filter doesn't use smart history: " + filterBean);
       }
 
+      // honour manual skip and the auto-skip-after-N-failures rule
+      if(state == ListBean.DOWNLOAD_INCL) {
+        int maxRetries = Plugin.getIntParameter("MagnetMaxRetries", 3);
+        if(urlBean.isSkipped(link, maxRetries)) {
+          Plugin.debugOut("skipping item (manual/auto): " + link);
+          state = ListBean.DOWNLOAD_SKIP;
+        }
+      }
+
       final ListBean listBean = addTableElement(urlBean, listBeans, title, link, description, state);
 
       if(state == ListBean.DOWNLOAD_INCL) {
-        // Add the feed
+        // Add the feed asynchronously so magnet/torrent retrieval does not block
+        // processing of the remaining feed items.
         final String curLink = link;
-        boolean success = view.torrentDownloader.addTorrent(curLink, urlBean, filterBean, listBean);
-        if(success && filterBean.getTypeIndex() == FilterBean.TYPE_OTHER && filterBean.getDisableAfter())
-          filterBean.setEnabled(false);
-
-        if(view.isOpen() && view.display != null && !view.display.isDisposed())
-          view.display.asyncExec(new Runnable() {
-            @Override
-            public void run() {
-              ListTreeItem listItem = view.treeViewManager.getItem(listBean);
-              if(listItem != null) listItem.update();
-            }
-          });
+        view.torrentDownloader.addTorrentAsync(curLink, urlBean, filterBean, listBean);
       }
     }
   }
